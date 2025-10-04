@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1759580495136,
+    "title": "Buy groceries",
+    "priority": "high",
+    "deadline": "2025-10-04T17:00:00",
+    "completed": true,
+    "created_at": "2025-10-04T17:51:35.137642",
+    "completed_at": "2025-10-04T17:51:35.216119"
+  },
+  {
+    "id": 1759580495185,
+    "title": "Submit assignment",
+    "priority": "high",
+    "deadline": "2025-10-10T09:00:00",
+    "completed": false,
+    "created_at": "2025-10-04T17:51:35.186093",
+    "completed_at": null
+  }
+]

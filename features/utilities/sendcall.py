@@ -1,17 +1,18 @@
-
 import pyttsx3
 import speech_recognition as sr
-from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
+engine = pyttsx3.init("sapi5")
+voices = engine.getProperty("voices")
+engine.setProperty("voice", voices[0].id)
 rate = engine.setProperty("rate", 185)
+
 
 def Speak(audio):
     engine.say(audio)
     engine.runAndWait()
+
 
 def TakeCommand():
     r = sr.Recognizer()
@@ -22,12 +23,13 @@ def TakeCommand():
 
     try:
         print("Understanding...")
-        query = r.recognize_google(audio, language='en-in')
+        query = r.recognize_google(audio, language="en-in")
         print(f"Master said: {query}\n")
     except Exception as e:
         print("Say that again please...")
         return "None"
     return query
+
 
 def send_call():
 
@@ -36,13 +38,12 @@ def send_call():
     auth_token = "Your_account auth_token"
     client = Client(account_sid, auth_token)
 
-
     call = client.calls.create(
-        twiml=f'<Response><Say></Say></Response>',
-        from_='your_twillo_number',
-        to='whom_you_want_to_sent'
+        twiml=f"<Response><Say></Say></Response>",
+        from_="your_twillo_number",
+        to="whom_you_want_to_sent",
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     send_call()

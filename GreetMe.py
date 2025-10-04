@@ -7,16 +7,17 @@ Implements Speak and greetMe in a way that works well with unit tests:
 - Uses this module's `datetime.datetime` so tests can patch it.
 """
 
-import pyttsx3
 import datetime
+
+import pyttsx3
 
 
 def Speak(audio: str) -> None:
-    engine = pyttsx3.init('sapi5')
-    voices = engine.getProperty('voices')
+    engine = pyttsx3.init("sapi5")
+    voices = engine.getProperty("voices")
     if voices:
-        engine.setProperty('voice', voices[0].id)
-    engine.setProperty('rate', 185)
+        engine.setProperty("voice", voices[0].id)
+    engine.setProperty("rate", 185)
     engine.say(audio)
     engine.runAndWait()
 
@@ -30,6 +31,3 @@ def greetMe() -> None:
     else:
         Speak("Good Evening, Master arpit.")
     Speak("I am Jarvis. How can I help you?")
-
-
-
