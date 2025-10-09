@@ -43,11 +43,10 @@ def remindme():
         print("\nRemainder Set Successfully! \n")
         Speak("Reminder set Succesfully!")
         time.sleep(seconds)
-        os.startfile("jarvisremind.mp3")
+        os.startfile("assets/media/jarvisremind.mp3")
         toaster.show_toast(Toasttitle, msg, duration=10, threaded=True)
         while toaster.notification_active:
             time.sleep(0.1)
-remindme()
 
 
 

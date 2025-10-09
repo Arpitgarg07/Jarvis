@@ -24,7 +24,7 @@ from pygame import mixer
 from pywikihow import RandomHowTo, search_wikihow
 import pygame
 from features.communication.Whatsapp import sendMessage
-from features.utilities.battery import check_battery
+from features.system.battery import check_battery
 from features.entertainment.joke import jokes
 from features.system.battery import battery
 from features.utilities.FocusGraph import focus_graph
@@ -415,15 +415,15 @@ if __name__ == "__main__":
                     query = query.replace("jarvis","")
                     query = query.replace("google search","")
                     query = query.replace("google","")
-                    from SearchNow import searchGoogle
+                    from features.search.SearchNow import searchGoogle
                     searchGoogle(query)
 
                 elif "youtube" in query:
-                    from SearchNow import searchyoutube
+                    from features.search.SearchNow import searchyoutube
                     searchyoutube(query)
                 
                 elif "wikipedia" in query:
-                    from SearchNow import searchwikipedia
+                    from features.search.SearchNow import searchwikipedia
                     searchwikipedia(query)
 
                 #& Youtube Running Shortcuts.
