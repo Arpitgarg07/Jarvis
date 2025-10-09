@@ -26,9 +26,8 @@ def My_Location():
     geo_d = geo_q.json()
     state = geo_d['city']
     country = geo_d['country']
-    Speak("Your LOcation is on screen!")
-    print("Your LOcation is on screen!")
-
+    Speak("Your Location is on screen!")
+    print("Your Location is on screen!")
 
 
 
