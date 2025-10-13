@@ -1,14 +1,15 @@
 import os
-import pyautogui
-import webbrowser
-import pyttsx3
-import wmi
-import speech_recognition as sr
-from time import sleep
 import time
+import webbrowser
+from time import sleep
+
+import pyautogui
 import pynput
-from pynput.mouse import Button, Controller
+import pyttsx3
+import speech_recognition as sr
+import wmi
 from pynput import mouse
+from pynput.mouse import Button, Controller
 
 
 def TakeCommand():

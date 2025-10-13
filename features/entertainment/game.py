@@ -1,6 +1,7 @@
+import random
+
 import pyttsx3
 import speech_recognition as sr
-import random
 
 engine = pyttsx3.init("sapi5")
 voices = engine.getProperty("voices")

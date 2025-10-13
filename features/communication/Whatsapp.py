@@ -1,14 +1,14 @@
-import pywhatkit
-import pyttsx3
-import speech_recognition as sr
-import webbrowser
-from bs4 import BeautifulSoup
-from time import sleep
 import os
-from datetime import timedelta
-from datetime import datetime
 import time
+import webbrowser
+from datetime import datetime, timedelta
+from time import sleep
+
 import pyautogui
+import pyttsx3
+import pywhatkit
+import speech_recognition as sr
+from bs4 import BeautifulSoup
 
 engine = pyttsx3.init("sapi5")
 voices = engine.getProperty("voices")

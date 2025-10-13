@@ -4,10 +4,10 @@ Test runner script for Jarvis project
 This script runs all tests and code quality checks
 """
 
-import os
-import sys
-import subprocess
 import argparse
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 

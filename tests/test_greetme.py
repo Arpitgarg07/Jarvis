@@ -2,17 +2,17 @@
 Test cases for GreetMe module
 """
 
-import unittest
-from unittest.mock import patch, MagicMock
 import datetime
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock, patch
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
-    from GreetMe import greetMe, Speak
+    from GreetMe import Speak, greetMe
 except ImportError:
     # Skip tests if dependencies are not available
     import unittest

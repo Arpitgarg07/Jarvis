@@ -1,8 +1,8 @@
+import time
+
+import psutil
 import pyttsx3
 from win10toast import ToastNotifier
-import time
-import psutil
-
 
 engine = pyttsx3.init("sapi5")
 voices = engine.getProperty("voices")

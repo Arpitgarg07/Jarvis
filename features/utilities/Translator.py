@@ -1,13 +1,14 @@
+import os
+import time
 from fnmatch import translate
 from time import sleep
-from googletrans import Translator
+
 import googletrans  # pip install googletrans
-from gtts import gTTS
 import pyttsx3
 import speech_recognition
-import os
+from googletrans import Translator
+from gtts import gTTS
 from playsound import playsound
-import time
 
 engine = pyttsx3.init("sapi5")
 voices = engine.getProperty("voices")

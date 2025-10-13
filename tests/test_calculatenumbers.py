@@ -2,10 +2,10 @@
 Test cases for Calculatenumbers module
 """
 
-import unittest
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock, patch
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

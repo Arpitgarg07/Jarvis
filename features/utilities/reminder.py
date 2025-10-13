@@ -1,8 +1,9 @@
+import os
+import time
+
 import pyttsx3
 import speech_recognition as sr
 from win10toast import ToastNotifier
-import time
-import os
 
 
 def TakeCommand():

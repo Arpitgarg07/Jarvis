@@ -1,10 +1,11 @@
 import os
-import pyautogui
 import webbrowser
-import pyttsx3
-import wmi
-import speech_recognition as sr
 from time import sleep
+
+import pyautogui
+import pyttsx3
+import speech_recognition as sr
+import wmi
 
 
 def TakeCommand():

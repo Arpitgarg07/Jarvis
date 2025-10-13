@@ -1,56 +1,50 @@
 # ? install all library use in this by cd "pip install _______"
-import pyttsx3
-import speech_recognition as sr
 import datetime
-import webbrowser
-import cv2
 import os
-import requests
 import random
-import time
-import sys
-import pyautogui
-import speedtest
-import requests
-import numpy
 import subprocess
+import sys
+import time
+import webbrowser
 from os import startfile
+
+import cv2
+import numpy
+import pyautogui
+import pygame
+import pyttsx3
+import requests
+import speech_recognition as sr
+import speedtest
 from bs4 import BeautifulSoup
-from plyer import notification
 from nltk.chat.util import Chat, reflections
-from requests import get
+from plyer import notification
 from pygame import mixer
 from pywikihow import RandomHowTo, search_wikihow
-import pygame
-from features.communication.Whatsapp import sendMessage
-from features.utilities.battery import check_battery
-from features.entertainment.joke import jokes
-from features.system.battery import battery
-from features.utilities.FocusGraph import focus_graph
-from features.utilities.task_manager import (
-    add_task,
-    list_tasks,
-    overdue_tasks,
-    mark_completed,
-    set_priority,
-    summary_text,
-)
-from features.entertainment.game import game_play
-from features.search.SearchNow import searchGoogle, searchyoutube, searchwikipedia
-from features.utilities.Translator import translategl
-from features.utilities.Location import My_Location
-from features.utilities.Calculatenumbers import WolfRamAlpha, Calc
-from features.system.Dictapp import *  # All system functions
-from features.system.keyboard import volumeup, volumedown
-from features.communication.sendemail import *
-from features.utilities.sendcall import send_call
-from features.utilities.reminder import remindme
-from features.communication.Whatsappmessage import sendwhatsapp
-from features.entertainment.NewsRead import latestnews
-from core.GreetMe import greetMe
+from requests import get
 
-import sys
-import os
+from core.GreetMe import greetMe
+from features.communication.sendemail import *
+from features.communication.Whatsapp import sendMessage
+from features.communication.Whatsappmessage import sendwhatsapp
+from features.entertainment.game import game_play
+from features.entertainment.joke import jokes
+from features.entertainment.NewsRead import latestnews
+from features.search.SearchNow import (searchGoogle, searchwikipedia,
+                                       searchyoutube)
+from features.system.battery import battery
+from features.system.Dictapp import *  # All system functions
+from features.system.keyboard import volumedown, volumeup
+from features.utilities.battery import check_battery
+from features.utilities.Calculatenumbers import Calc, WolfRamAlpha
+from features.utilities.FocusGraph import focus_graph
+from features.utilities.Location import My_Location
+from features.utilities.reminder import remindme
+from features.utilities.sendcall import send_call
+from features.utilities.task_manager import (add_task, list_tasks,
+                                             mark_completed, overdue_tasks,
+                                             set_priority, summary_text)
+from features.utilities.Translator import translategl
 
 project_root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root_dir)
@@ -784,8 +778,7 @@ if __name__ == "__main__":
 
                 # * To Calculate any digit.
                 elif "calculate" in query:
-                    from Calculatenumbers import WolfRamAlpha
-                    from Calculatenumbers import Calc
+                    from Calculatenumbers import Calc, WolfRamAlpha
 
                     query = query.replace("calculate", "")
                     query = query.replace("jarvis", "")
@@ -864,9 +857,8 @@ if __name__ == "__main__":
                         print("What's the subject of the email?")
                         Speak("What's the subject of the email?")
                         subject = TakeCommand().lower()
-                        from sendemail import send_email
-                        from sendemail import sender_email
-                        from sendemail import sender_password
+                        from sendemail import (send_email, sender_email,
+                                               sender_password)
 
                         print("What's the content of the email?")
                         Speak("What's the content of the email?")

@@ -24,9 +24,9 @@ Usage:
     response = task_interface.process_voice_command("Add task: Buy groceries")
 """
 
-from .task_manager import TaskVoiceInterface, TaskManager, Priority
-from .kannada_support import KannadaVoiceProcessor, Language
 from .jarvis_task_integration import JarvisTaskIntegration
+from .kannada_support import KannadaVoiceProcessor, Language
+from .task_manager import Priority, TaskManager, TaskVoiceInterface
 
 __version__ = "1.0.0"
 __author__ = "Jarvis AI Assistant"

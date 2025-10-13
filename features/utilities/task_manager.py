@@ -4,7 +4,6 @@ import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
-
 TASKS_FILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "data",

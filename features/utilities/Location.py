@@ -1,7 +1,7 @@
-import pyttsx3
 import webbrowser
-import requests
 
+import pyttsx3
+import requests
 
 engine = pyttsx3.init("sapi5")
 voices = engine.getProperty("voices")

@@ -8,11 +8,12 @@ with your existing Jarvis AI assistant.
 Copy the relevant parts to your main Jarvis file.
 """
 
-import speech_recognition as sr
-import pyttsx3
-from jarvis_task_integration import JarvisTaskIntegration
 import threading
 import time
+
+import pyttsx3
+import speech_recognition as sr
+from jarvis_task_integration import JarvisTaskIntegration
 
 
 class JarvisWithTaskManagement:

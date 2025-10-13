@@ -11,15 +11,15 @@ from datetime import datetime
 
 # Import our task management modules
 try:
-    import sys
     import os
+    import sys
 
     # Add the parent directory to the path
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    from task_manager import TaskVoiceInterface, TaskManager, Priority
     from jarvis_task_integration import JarvisTaskIntegration
     from task_config import setup_directories
+    from task_manager import Priority, TaskManager, TaskVoiceInterface
 
     print("All modules imported successfully!")
 except ImportError as e:

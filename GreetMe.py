@@ -7,8 +7,9 @@ Implements Speak and greetMe in a way that works well with unit tests:
 - Uses this module's `datetime.datetime` so tests can patch it.
 """
 
-import pyttsx3
 import datetime
+
+import pyttsx3
 
 
 def Speak(audio: str) -> None:

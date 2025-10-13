@@ -6,8 +6,8 @@ This module provides Kannada language support for the voice-controlled
 task management system, including voice commands, responses, and TTS.
 """
 
-from typing import Dict, List
 from enum import Enum
+from typing import Dict, List
 
 
 class Language(Enum):

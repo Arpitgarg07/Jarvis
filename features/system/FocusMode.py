@@ -1,7 +1,8 @@
-import time
+import ctypes
 import datetime
-import ctypes, sys
 import os
+import sys
+import time
 
 
 def is_admin():

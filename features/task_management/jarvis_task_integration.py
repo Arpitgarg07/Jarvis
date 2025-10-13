@@ -11,10 +11,11 @@ Usage:
 3. The system will automatically handle task operations via voice commands
 """
 
-from task_manager import TaskVoiceInterface, TaskManager, Priority
 import json
 import os
 from datetime import datetime
+
+from task_manager import Priority, TaskManager, TaskVoiceInterface
 
 
 class JarvisTaskIntegration:

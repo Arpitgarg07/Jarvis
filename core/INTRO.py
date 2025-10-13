@@ -1,9 +1,10 @@
-from tkinter import *
-from PIL import Image, ImageTk, ImageSequence
 import time
-import pygame
-from pygame import mixer
+from tkinter import *
+
 import pyautogui
+import pygame
+from PIL import Image, ImageSequence, ImageTk
+from pygame import mixer
 
 mixer.init()
 
