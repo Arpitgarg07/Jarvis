@@ -1,15 +1,17 @@
-import wolframalpha
 import pyttsx3
 import speech_recognition as sr
+import wolframalpha
 
 engine = pyttsx3.init("sapi5")
 voices = engine.getProperty("voices")
 engine.setProperty("voice", voices[0].id)
-rate = engine.setProperty("rate",185)
+rate = engine.setProperty("rate", 185)
+
 
 def Speak(audio):
     engine.say(audio)
     engine.runAndWait()
+
 
 def WolfRamAlpha(query):
     apikey = "WGKT3V-R88U56Q4T6"
@@ -22,13 +24,14 @@ def WolfRamAlpha(query):
     except:
         Speak("The value is not answerable")
 
+
 def Calc(query):
     Term = str(query)
-    Term = Term.replace("jarvis","")
-    Term = Term.replace("multiply","*")
-    Term = Term.replace("plus","+")
-    Term = Term.replace("minus","-")
-    Term = Term.replace("divide","/")
+    Term = Term.replace("jarvis", "")
+    Term = Term.replace("multiply", "*")
+    Term = Term.replace("plus", "+")
+    Term = Term.replace("minus", "-")
+    Term = Term.replace("divide", "/")
 
     Final = str(Term)
     try:

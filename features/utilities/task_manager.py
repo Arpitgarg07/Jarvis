@@ -4,8 +4,11 @@ import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
-
-TASKS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "tasks.json")
+TASKS_FILE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "data",
+    "tasks.json",
+)
 
 
 def _ensure_storage() -> None:
@@ -97,7 +100,11 @@ def _parse_deadline(text: str) -> Optional[str]:
     return candidate.isoformat()
 
 
-def add_task(description: str, deadline_text: Optional[str] = None, priority: Optional[str] = None) -> Dict:
+def add_task(
+    description: str,
+    deadline_text: Optional[str] = None,
+    priority: Optional[str] = None,
+) -> Dict:
     tasks = _load_tasks()
     task = {
         "id": int(datetime.now().timestamp() * 1000),
@@ -130,7 +137,9 @@ def list_tasks(period: Optional[str] = None) -> List[Dict]:
                 result.append(t)
         return result
     if period == "week":
-        start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+        start = (now - timedelta(days=now.weekday())).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
         end = start + timedelta(days=7)
         result = []
         for t in tasks:
@@ -157,8 +166,9 @@ def overdue_tasks() -> List[Dict]:
             dt = datetime.fromisoformat(dl)
             if dt < now:
                 result.append(t)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Error parsing deadline for task {t.get('title', 'Unknown')}: {e}")
+            # Skip this task if deadline parsing fails
     return result
 
 
@@ -209,5 +219,3 @@ def summary_text(period: str) -> str:
             return "You have no overdue tasks."
         return "Overdue tasks: " + "; ".join(format_task(t) for t in items[:10])
     return ""
-
-

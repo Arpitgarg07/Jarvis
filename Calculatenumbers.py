@@ -5,5 +5,3 @@ Re-exports symbols from features.utilities.Calculatenumbers so that
 """
 
 from features.utilities.Calculatenumbers import *  # noqa: F401,F403
-
-

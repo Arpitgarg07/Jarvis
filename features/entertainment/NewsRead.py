@@ -1,16 +1,19 @@
-import requests
 import json
+
 import pyttsx3
+import requests
 import speech_recognition as sr
 
 engine = pyttsx3.init("sapi5")
 voices = engine.getProperty("voices")
 engine.setProperty("voice", voices[0].id)
-rate = engine.setProperty("rate",185)
+rate = engine.setProperty("rate", 185)
+
 
 def Speak(audio):
     engine.say(audio)
     engine.runAndWait()
+
 
 def TakeCommand():
 
@@ -19,34 +22,38 @@ def TakeCommand():
         print("Listening...")
         r.pause_threshold = 1
         # r.energy_threshold = 200
-        audio = r.listen(source,0,4)
+        audio = r.listen(source, 0, 4)
 
     try:
-        print("Understanding...")    
-        query = r.recognize_google(audio, language='en-in')
+        print("Understanding...")
+        query = r.recognize_google(audio, language="en-in")
         print(f"Master said: {query}\n")
 
     except Exception as e:
-        print("Say that again please...") 
+        print("Say that again please...")
         return "None"
     return query
 
-#! In latestnews we use in link after "=" sign our api key. 
+
+#! In latestnews we use in link after "=" sign our api key.
 def latestnews():
-    api_dict = {"business" : "https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=518914f375d14a61899bd1d83f52cf09",
-            "entertainment" : "https://newsapi.org/v2/top-headlines?country=in&category=entertainment&apiKey=518914f375d14a61899bd1d83f52cf09",
-            "health" : "https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=518914f375d14a61899bd1d83f52cf09",
-            "science" :"https://newsapi.org/v2/top-headlines?country=in&category=science&apiKey=518914f375d14a61899bd1d83f52cf09",
-            "sports" :"https://newsapi.org/v2/top-headlines?country=in&category=sports&apiKey=518914f375d14a61899bd1d83f52cf09",
-            "technology" :"https://newsapi.org/v2/top-headlines?country=in&category=technology&apiKey=518914f375d14a61899bd1d83f52cf09"
-}
+    api_dict = {
+        "business": "https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=518914f375d14a61899bd1d83f52cf09",
+        "entertainment": "https://newsapi.org/v2/top-headlines?country=in&category=entertainment&apiKey=518914f375d14a61899bd1d83f52cf09",
+        "health": "https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=518914f375d14a61899bd1d83f52cf09",
+        "science": "https://newsapi.org/v2/top-headlines?country=in&category=science&apiKey=518914f375d14a61899bd1d83f52cf09",
+        "sports": "https://newsapi.org/v2/top-headlines?country=in&category=sports&apiKey=518914f375d14a61899bd1d83f52cf09",
+        "technology": "https://newsapi.org/v2/top-headlines?country=in&category=technology&apiKey=518914f375d14a61899bd1d83f52cf09",
+    }
 
     content = None
     url = None
-    Speak("Which field news do you want, [business] , [health] , [technology], [sports] , [entertainment] , [science]")
+    Speak(
+        "Which field news do you want, [business] , [health] , [technology], [sports] , [entertainment] , [science]"
+    )
     field = TakeCommand().lower()
 
-    for key ,value in api_dict.items():
+    for key, value in api_dict.items():
         if key.lower() in field.lower():
             url = value
             print(url)
@@ -62,7 +69,7 @@ def latestnews():
     Speak("Here is the first news.")
 
     arts = news["articles"]
-    for articles in arts :
+    for articles in arts:
         article = articles["title"]
         print(article)
         Speak(article)
@@ -75,5 +82,5 @@ def latestnews():
             pass
         elif str(a) == "stop":
             break
-        
+
     Speak("thats all")
