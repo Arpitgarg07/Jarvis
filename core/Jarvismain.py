@@ -30,7 +30,8 @@ from features.communication.Whatsappmessage import sendwhatsapp
 from features.entertainment.game import game_play
 from features.entertainment.joke import jokes
 from features.entertainment.NewsRead import latestnews
-from features.search.SearchNow import searchGoogle, searchwikipedia, searchyoutube
+from features.search.SearchNow import (searchGoogle, searchwikipedia,
+                                       searchyoutube)
 from features.system.battery import battery
 from features.system.Dictapp import *  # All system functions
 from features.system.keyboard import volumedown, volumeup
@@ -40,14 +41,9 @@ from features.utilities.FocusGraph import focus_graph
 from features.utilities.Location import My_Location
 from features.utilities.reminder import remindme
 from features.utilities.sendcall import send_call
-from features.utilities.task_manager import (
-    add_task,
-    list_tasks,
-    mark_completed,
-    overdue_tasks,
-    set_priority,
-    summary_text,
-)
+from features.utilities.task_manager import (add_task, list_tasks,
+                                             mark_completed, overdue_tasks,
+                                             set_priority, summary_text)
 from features.utilities.Translator import translategl
 
 project_root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -861,7 +857,8 @@ if __name__ == "__main__":
                         print("What's the subject of the email?")
                         Speak("What's the subject of the email?")
                         subject = TakeCommand().lower()
-                        from sendemail import send_email, sender_email, sender_password
+                        from sendemail import (send_email, sender_email,
+                                               sender_password)
 
                         print("What's the content of the email?")
                         Speak("What's the content of the email?")
