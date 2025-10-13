@@ -16,10 +16,10 @@ Features:
 
 Usage:
     from features.task_management import TaskVoiceInterface
-    
+
     # Initialize task management
     task_interface = TaskVoiceInterface()
-    
+
     # Process voice commands
     response = task_interface.process_voice_command("Add task: Buy groceries")
 """
@@ -33,10 +33,10 @@ __author__ = "Jarvis AI Assistant"
 __description__ = "Voice-controlled task management with bilingual support"
 
 __all__ = [
-    'TaskVoiceInterface',
-    'TaskManager', 
-    'Priority',
-    'KannadaVoiceProcessor',
-    'Language',
-    'JarvisTaskIntegration'
+    "TaskVoiceInterface",
+    "TaskManager",
+    "Priority",
+    "KannadaVoiceProcessor",
+    "Language",
+    "JarvisTaskIntegration",
 ]

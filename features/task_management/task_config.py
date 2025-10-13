@@ -47,78 +47,75 @@ BACKUP_FREQUENCY_HOURS = 24  # Backup every 24 hours
 
 # Voice command patterns (customize as needed)
 TASK_COMMAND_PATTERNS = {
-    'add_task': [
-        r'add task:?\s*(.+)',
-        r'create task:?\s*(.+)',
-        r'new task:?\s*(.+)',
-        r'todo:?\s*(.+)'
+    "add_task": [
+        r"add task:?\s*(.+)",
+        r"create task:?\s*(.+)",
+        r"new task:?\s*(.+)",
+        r"todo:?\s*(.+)",
     ],
-    'add_urgent_task': [
-        r'add urgent task:?\s*(.+)',
-        r'urgent task:?\s*(.+)',
-        r'priority task:?\s*(.+)'
+    "add_urgent_task": [
+        r"add urgent task:?\s*(.+)",
+        r"urgent task:?\s*(.+)",
+        r"priority task:?\s*(.+)",
     ],
-    'complete_task': [
-        r'mark task completed:?\s*(.+)',
-        r'complete task:?\s*(.+)',
-        r'done:?\s*(.+)',
-        r'finished:?\s*(.+)'
+    "complete_task": [
+        r"mark task completed:?\s*(.+)",
+        r"complete task:?\s*(.+)",
+        r"done:?\s*(.+)",
+        r"finished:?\s*(.+)",
     ],
-    'show_tasks_today': [
-        r'what are my tasks today',
-        r'tasks today',
-        r'today tasks',
-        r'show today tasks'
+    "show_tasks_today": [
+        r"what are my tasks today",
+        r"tasks today",
+        r"today tasks",
+        r"show today tasks",
     ],
-    'show_tasks_week': [
-        r'what are my tasks this week',
-        r'tasks this week',
-        r'week tasks',
-        r'show week tasks'
+    "show_tasks_week": [
+        r"what are my tasks this week",
+        r"tasks this week",
+        r"week tasks",
+        r"show week tasks",
     ],
-    'show_overdue': [
-        r'show overdue tasks',
-        r'overdue tasks',
-        r'late tasks',
-        r'missed tasks'
+    "show_overdue": [
+        r"show overdue tasks",
+        r"overdue tasks",
+        r"late tasks",
+        r"missed tasks",
     ],
-    'task_summary': [
-        r'task summary',
-        r'task overview',
-        r'task status',
-        r'my tasks'
-    ]
+    "task_summary": [r"task summary", r"task overview", r"task status", r"my tasks"],
 }
 
 # Priority levels and their colors (for GUI if implemented)
 PRIORITY_COLORS = {
-    'urgent': '#FF0000',    # Red
-    'high': '#FF8C00',      # Orange
-    'normal': '#008000',    # Green
-    'low': '#808080'        # Gray
+    "urgent": "#FF0000",  # Red
+    "high": "#FF8C00",  # Orange
+    "normal": "#008000",  # Green
+    "low": "#808080",  # Gray
 }
 
 # Date/time parsing patterns
 DEADLINE_PATTERNS = [
-    r'by\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)\s+today',
-    r'by\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)\s+tomorrow',
-    r'by\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
-    r'by\s+(\d{1,2}/\d{1,2}(?:/\d{2,4})?)',
-    r'due\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)\s+today',
-    r'due\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)\s+tomorrow',
-    r'deadline\s+(\d{1,2}/\d{1,2}(?:/\d{2,4})?)',
-    r'until\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)'
+    r"by\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)\s+today",
+    r"by\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)\s+tomorrow",
+    r"by\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)",
+    r"by\s+(\d{1,2}/\d{1,2}(?:/\d{2,4})?)",
+    r"due\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)\s+today",
+    r"due\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)\s+tomorrow",
+    r"deadline\s+(\d{1,2}/\d{1,2}(?:/\d{2,4})?)",
+    r"until\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)",
 ]
+
 
 # Create necessary directories
 def setup_directories():
     """Create necessary directories for task management"""
     directories = [TASKS_BACKUP_DIR, EXPORT_DIR]
-    
+
     for directory in directories:
         if not os.path.exists(directory):
             os.makedirs(directory)
             print(f"Created directory: {directory}")
+
 
 # Initialize configuration
 if __name__ == "__main__":
