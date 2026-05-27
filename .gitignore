@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local secrets and personal runtime data
+.env
+.env.*
+!/.env.example
+password.txt
+voice GPT/Api.txt
+Api.txt
+Remember.txt
+Alarmtext.txt
+tasks.txt
+focus.txt
+PyWhatKit_DB.txt
+pywhatkit_dbs.txt
+jarvis_memory.db
+jarvis_memory.db-*
+jarvis_notes.txt
+jarvis_reminders.txt
+
+# Personal biometric/security data
+samples/
+trainer/
+Lock Screen photos/
+
+# Build outputs
+build/
+dist/
+*.spec
+*.exe
+voice GPT/build/
+voice GPT/dist/
+voice GPT/*.exe
+voice GPT/*.spec
+
+# Local browser drivers
+webdriver/
