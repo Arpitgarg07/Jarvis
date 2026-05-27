@@ -1,0 +1,39 @@
+# Environment & Secrets
+.env
+*.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Face recognition trained model
+trainer/
+assets/models/*.yml
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & data files (personal)
+data/Remember.txt
+data/focus.txt
+data/tasks.json
+data/Alarmtext.txt
+screenshots/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/

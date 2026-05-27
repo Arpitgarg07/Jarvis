@@ -1,48 +1,46 @@
-import pyttsx3
+"""
+features/communication/sendemail.py
+─────────────────────────────────────
+Email sending via Gmail SMTP.
+Credentials loaded from .env — never hardcoded.
+"""
+
+import os
 import smtplib
+from email.message import EmailMessage
+from dotenv import load_dotenv
+from core.voice import Speak
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
-rate = engine.setProperty("rate",185)
+load_dotenv()
 
-def Speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
+# Add recipient name → email mappings here
+RECIPIENT_MAPPING = {
+    "example": "example@gmail.com",
+    # "mom": "mom@gmail.com",
+}
 
-#^ Function to send an email.
-def send_email(sender_email, sender_password, recipient_email, subject, content):
-    from email.message import EmailMessage
+
+def send_email(recipient_email: str, subject: str, content: str) -> None:
+    sender_email = os.getenv("SENDER_EMAIL")
+    sender_password = os.getenv("SENDER_PASSWORD")
+
+    if not sender_email or not sender_password:
+        Speak("Email credentials not configured in .env file.")
+        return
+
     msg = EmailMessage()
     msg['From'] = sender_email
     msg['To'] = recipient_email
     msg['Subject'] = subject
     msg.set_content(content)
 
-    with smtplib.SMTP('smtp.gmail.com', 587) as server:
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.send_message(msg)
-
-    print("Email sent successfully.")
-    Speak("Email sent successfully.")
-
-# ~Using Dictionary to map recipient names and their email ids.
-
-recipient_mapping = {
-    "name": "mail@example.com",
-    # Add more recipient mappings as needed.
-}
-
-# & Fetch sender's email and password 
-# & Here you will add your email id and password which you want to use to send email to other recipients.
-# & You make sure that you can't use your original password for privacy concerns.
-# & You can use Google 'less secure apps' feature.
-
-sender_email = "Your email id"
-sender_password = "your password"
-
-
-
-
-
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        print("Email sent successfully.")
+        Speak("Email sent successfully.")
+    except Exception as e:
+        print(f"Email failed: {e}")
+        Speak("Sorry, email could not be sent.")
