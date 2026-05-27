@@ -1,179 +1,105 @@
+"""
+features/system/Dictapp.py
+───────────────────────────
+System control functions: brightness, screenshots, window management.
+Paths loaded from .env — no hardcoded contributor paths.
+"""
+
 import os
 import pyautogui
 import webbrowser
-import pyttsx3
-import wmi
-import speech_recognition as sr
 from time import sleep
+from dotenv import load_dotenv
+from core.voice import Speak
 
-def TakeCommand():
+load_dotenv()
 
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Listening...")
-        r.pause_threshold = 1
-        # r.energy_threshold = 200
-        audio = r.listen(source,0,4)
 
-    try:
-        print("Understanding...")    
-        query = r.recognize_google(audio, language='en-in')
-        print(f"Master said: {query}\n")
+# ── Screenshot ───────────────────────────────────────
+def take_screenshot() -> None:
+    save_path = os.getenv("SCREENSHOT_PATH", os.path.expanduser("~/Pictures"))
+    os.makedirs(save_path, exist_ok=True)
+    filename = "screenshot.png"
+    full_path = os.path.join(save_path, filename)
+    screenshot = pyautogui.screenshot()
+    screenshot.save(full_path)
+    Speak("Screenshot saved.")
+    print(f"Screenshot saved: {full_path}")
 
-    except Exception as e:
-        print("Say that again please...") 
-        return "None"
-    return query
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
-rate = engine.setProperty("rate",185)
-
-def Speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
-
-#^ Adjusting brightness at fixed level.
-def adjust_brightness():
-    query = TakeCommand().lower()
-
-    if "level 10" in query or "full" in query:
-        set_brightness(100)
-        print("Brightness at level 10")
-    elif "level 9" in query:
-        set_brightness(90)
-        print("Brightness at level 9")
-    elif "level 8" in query:
-        set_brightness(80)
-        print("Brightness at level 8")
-    elif "level 7" in query:
-        set_brightness(70)
-        print("Brightness at level 7")
-    elif "level 6" in query:
-        set_brightness(60)
-        print("Brightness increased 6")
-    elif "level 5" in query or "medium" in query:
-        set_brightness(50)
-        print("Brightness at level 5")
-    elif "level 4" in query:
-        set_brightness(40)
-        print("Brightness at level 4")
-    elif "level 3" in query:
-        set_brightness(30)
-        print("Brightness at level 3")
-    elif "level 2" in query:
-        set_brightness(20)
-        print("Brightness at level 2")
-    elif "level 1" in query:
-        set_brightness(10)
-        print("Brightness at level 1")
-    elif "level 0" in query or "low" in query or "decrease" in query:
-        set_brightness(0)
-        print("Brightness at level 0")
-
-    else:
-        print("Command not understanding...")
-
-#* Keyboard Shortcuts
-def minimize_window():
+# ── Window Management ─────────────────────────────────
+def minimize_window() -> None:
     pyautogui.hotkey('win', 'down')
 
-def switchtab():
+def maximize_window() -> None:
+    pyautogui.hotkey('win', 'up')
+
+def close_window() -> None:
+    Speak("Window closed.")
+    pyautogui.hotkey('Alt', 'f4')
+
+def go_to_home_screen() -> None:
+    Speak("You are on the home screen.")
+    pyautogui.hotkey('win', 'd')
+
+def lock_pc() -> None:
+    Speak("PC is locked.")
+    pyautogui.hotkey('win', 'l')
+
+def open_search() -> None:
+    pyautogui.hotkey('win', 's')
+
+def reload_page() -> None:
+    pyautogui.hotkey('ctrl', 'r')
+
+def switchtab() -> None:
     pyautogui.hotkey('Alt', 'Tab')
 
-# Function to capture a screenshot
-def take_screenshot():
-    screenshot = pyautogui.screenshot()
-    save_path = r"C:\Users\gomti\OneDrive\Pictures\Screenshots"    #add the folder location of taking screenshot
-    filename = "screenshot.png"
-    screenshot.save(os.path.join(save_path, filename))
-    Speak("Screenshot saved.")
-    print(f"Screenshot saved as {os.path.join(save_path, filename)}")
+def pin_screen() -> None:
+    Speak("Done sir.")
+    pyautogui.hotkey('win', 'ctrl', 't')
 
-def click_photo():
+
+# ── Brightness ────────────────────────────────────────
+def set_brightness(percentage: int) -> None:
+    try:
+        import wmi
+        wmi.WMI(namespace='wmi').WmiMonitorBrightnessMethods()[0].WmiSetBrightness(percentage, 0)
+    except Exception as e:
+        print(f"Brightness control failed: {e}")
+
+def adjust_brightness(level: str) -> None:
+    levels = {
+        "full": 100, "level 10": 100,
+        "level 9": 90, "level 8": 80, "level 7": 70,
+        "level 6": 60, "medium": 50, "level 5": 50,
+        "level 4": 40, "level 3": 30, "level 2": 20,
+        "level 1": 10, "low": 0, "level 0": 0,
+    }
+    for key, val in levels.items():
+        if key in level:
+            set_brightness(val)
+            print(f"Brightness set to {val}%")
+            return
+    print("Brightness level not recognised.")
+
+
+# ── Close Tabs ────────────────────────────────────────
+def closeappweb(count: int = 1) -> None:
+    Speak("Closing.")
+    for _ in range(count):
+        pyautogui.hotkey("ctrl", "w")
+        sleep(0.5)
+    Speak(f"{count} tab(s) closed.")
+
+
+# ── Click Photo ───────────────────────────────────────
+def click_photo() -> None:
     pyautogui.press("super")
     pyautogui.typewrite("camera")
     pyautogui.press("enter")
-    pyautogui.sleep(1)
-    Speak("SMILE")
+    sleep(1)
+    Speak("Smile!")
     pyautogui.press("enter")
-    Speak("Your photo is captured, you looking Good.")
-    pyautogui.hotkey('Alt','f4')
-
-# Function to open search
-def open_search():
-    pyautogui.hotkey('win', 's')
-
-# Function to pin screen
-def pin_screen():
-    Speak("Done Sir")
-    pyautogui.hotkey('win', 'ctrl', 't')
-
-# Function to close window
-def close_window():
-    Speak("window closed")
-    pyautogui.hotkey('Alt','f4')
-
-# Function to lock PC
-def lock_pc():
-    pyautogui.hotkey('win', 'l')
-    Speak("PC is locked")
-
-# Function to go to the home screen
-def go_to_home_screen():
-    Speak("You are on home screen now!")
-    pyautogui.hotkey('win', 'd')
-
-# Function to reload or refresh
-def reload_page():
-    pyautogui.hotkey('ctrl', 'r')
-
-# Function to maximize the active window
-def maximize_window():
-    pyautogui.hotkey('win', 'up')
-    
-# Function to adjust brightness of your pc
-def set_brightness(percentage):
-    wmi.WMI(namespace='wmi').WmiMonitorBrightnessMethods()[0].WmiSetBrightness(percentage, 0)
-
-def closeappweb(query):
-    Speak("Closing sir")
-    if "one tab" in query or "1 tab" in query:
-        pyautogui.hotkey("ctrl","w")
-    elif "two tab" in query or "2 tab " in query:
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        Speak("All tabs closed")
-    elif "3 tab" in query:
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        Speak("All tabs closed")
-    elif "4 tab" in query:
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        Speak("All tabs closed")
-    elif "5 tab" in query:
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        sleep(0.5)
-        pyautogui.hotkey("ctrl","w")
-        Speak("All tabs closed")
-    
-
-
-
+    Speak("Photo captured. You look great.")
+    pyautogui.hotkey('Alt', 'f4')

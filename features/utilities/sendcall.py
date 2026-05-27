@@ -1,48 +1,43 @@
+"""
+features/utilities/sendcall.py
+────────────────────────────────
+Twilio voice call integration.
+Credentials loaded from .env — never hardcoded.
+"""
 
-import pyttsx3
-import speech_recognition as sr
-from twilio.rest import Client
-from twilio.base.exceptions import TwilioRestException
+import os
+from dotenv import load_dotenv
+from core.voice import Speak, TakeCommand
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
-rate = engine.setProperty("rate", 185)
+load_dotenv()
 
-def Speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
 
-def TakeCommand():
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Listening...")
-        r.pause_threshold = 1
-        audio = r.listen(source, 0, 4)
+def send_call() -> None:
+    sid = os.getenv("TWILIO_SID")
+    token = os.getenv("TWILIO_TOKEN")
+    from_number = os.getenv("TWILIO_NUMBER")
+
+    if not all([sid, token, from_number]):
+        Speak("Twilio credentials not configured in .env file.")
+        return
+
+    Speak("Who do you want to call? Please say the number.")
+    to_number = TakeCommand()
+
+    if to_number == "None":
+        Speak("Could not understand the number.")
+        return
 
     try:
-        print("Understanding...")
-        query = r.recognize_google(audio, language='en-in')
-        print(f"Master said: {query}\n")
+        from twilio.rest import Client
+        client = Client(sid, token)
+        call = client.calls.create(
+            twiml='<Response><Say>Hello, this is Jarvis calling.</Say></Response>',
+            from_=from_number,
+            to=to_number
+        )
+        Speak(f"Call placed successfully.")
+        print(f"Call SID: {call.sid}")
     except Exception as e:
-        print("Say that again please...")
-        return "None"
-    return query
-
-def send_call():
-
-    # Your Twilio account SID and auth token
-    account_sid = "Your_account_sid"
-    auth_token = "Your_account auth_token"
-    client = Client(account_sid, auth_token)
-
-
-    call = client.calls.create(
-        twiml=f'<Response><Say></Say></Response>',
-        from_='your_twillo_number',
-        to='whom_you_want_to_sent'
-    )
-
-
-if __name__ == '__main__':
-    send_call()
+        Speak("Call failed.")
+        print(f"Twilio error: {e}")

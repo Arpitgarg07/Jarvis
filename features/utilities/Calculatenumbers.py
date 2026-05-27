@@ -1,40 +1,44 @@
+"""
+features/utilities/Calculatenumbers.py
+────────────────────────────────────────
+WolframAlpha + basic math calculations.
+API key loaded from .env — never hardcoded.
+"""
+
+import os
 import wolframalpha
-import pyttsx3
-import speech_recognition as sr
+from dotenv import load_dotenv
+from core.voice import Speak
 
-engine = pyttsx3.init("sapi5")
-voices = engine.getProperty("voices")
-engine.setProperty("voice", voices[0].id)
-rate = engine.setProperty("rate",185)
+load_dotenv()
 
-def Speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
 
-def WolfRamAlpha(query):
-    apikey = "WGKT3V-R88U56Q4T6"
-    requester = wolframalpha.Client(apikey)
-    requested = requester.query(query)
+def WolfRamAlpha(query: str) -> str | None:
+    api_key = os.getenv("WOLFRAM_API_KEY")
+    if not api_key:
+        Speak("WolframAlpha API key not configured.")
+        return None
+
+    client = wolframalpha.Client(api_key)
+    result = client.query(query)
 
     try:
-        answer = next(requested.results).text
-        return answer
-    except:
-        Speak("The value is not answerable")
+        return next(result.results).text
+    except Exception:
+        Speak("The value is not answerable.")
+        return None
 
-def Calc(query):
-    Term = str(query)
-    Term = Term.replace("jarvis","")
-    Term = Term.replace("multiply","*")
-    Term = Term.replace("plus","+")
-    Term = Term.replace("minus","-")
-    Term = Term.replace("divide","/")
 
-    Final = str(Term)
-    try:
-        result = WolfRamAlpha(Final)
-        print(f"{result}")
+def Calc(query: str) -> None:
+    query = (query
+             .replace("jarvis", "")
+             .replace("multiply", "*")
+             .replace("plus", "+")
+             .replace("minus", "-")
+             .replace("divide", "/")
+             .strip())
+
+    result = WolfRamAlpha(query)
+    if result:
+        print(result)
         Speak(result)
-
-    except:
-        Speak("The value is not answerable")

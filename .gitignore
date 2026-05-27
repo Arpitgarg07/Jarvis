@@ -1,49 +1,39 @@
-# Python
+# Environment & Secrets
+.env
+*.env
+
+# Python cache
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+.Python
 
-# Virtual environments
-.venv/
+# Face recognition trained model
+trainer/
+assets/models/*.yml
+
+# Virtual environment
 venv/
 env/
+.venv/
 
-# Local secrets and personal runtime data
-.env
-.env.*
-!/.env.example
-password.txt
-voice GPT/Api.txt
-Api.txt
-Remember.txt
-Alarmtext.txt
-tasks.txt
-focus.txt
-PyWhatKit_DB.txt
-pywhatkit_dbs.txt
-jarvis_memory.db
-jarvis_memory.db-*
-jarvis_notes.txt
-jarvis_reminders.txt
+# IDE
+.vscode/settings.json
+.idea/
 
-# Personal biometric/security data
-samples/
-trainer/
-Lock Screen photos/
+# OS
+.DS_Store
+Thumbs.db
 
-# Build outputs
-build/
-dist/
-*.spec
-*.exe
-voice GPT/build/
-voice GPT/dist/
-voice GPT/*.exe
-voice GPT/*.spec
+# Logs & data files (personal)
+data/Remember.txt
+data/focus.txt
+data/tasks.json
+data/Alarmtext.txt
+screenshots/
 
-# Local browser drivers
-webdriver/
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
