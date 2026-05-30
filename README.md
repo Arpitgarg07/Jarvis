@@ -117,7 +117,7 @@ This project is licensed under the [MIT License](LICENSE).
   <img src="https://github.com/Arpitgarg07/Jarvis/blob/main/docs/jarvis-logo.png" alt="Jarvis Logo" width="200"/>
 </p> -->
 
-<h1 align="center">Jarvis - Just A Rather Very Helpful Assistant 🤖</h1>
+<h1 align="center">Jarvis - Just A Rather Very Interactive System 🤖</h1>
 
 <p align="center">
   <strong>An open-source Python-based personal voice assistant with face recognition security and automation capabilities.</strong>
@@ -138,7 +138,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## 👷 Project Builder
+## 👷 Project Author
 
 Built and maintained by [Arpit Garg](https://github.com/Arpitgarg07).
 
@@ -362,7 +362,7 @@ Jarvis implements a multi-layered architecture with security at its core:
 - Local data processing for privacy
 
 ### 🧠 **Automation**
-- Command processing with keyword routing
+- Command processing based on voice keywords
 - System control and workflow helpers
 - Productivity tracking and analytics
 
