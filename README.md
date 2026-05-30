@@ -1,4 +1,4 @@
-<!-- # Jarvis (Just A Rather Very Intelligent System)
+<!-- # Jarvis (Just A Rather Very Interactive System)
 
 Jarvis is a Python-based personal voice assistant with a cool graphical interface. It listens for your voice commands and performs a variety of computer tasks — from searching the web to opening applications, sending emails, reporting weather, taking notes, and more.
 
@@ -117,10 +117,10 @@ This project is licensed under the [MIT License](LICENSE).
   <img src="https://github.com/Arpitgarg07/Jarvis/blob/main/docs/jarvis-logo.png" alt="Jarvis Logo" width="200"/>
 </p> -->
 
-<h1 align="center">Jarvis - Just A Rather Very Intelligent Assistant 🤖</h1>
+<h1 align="center">Jarvis - Just A Rather Very Helpful Assistant 🤖</h1>
 
 <p align="center">
-  <strong>An open-source Python-based personal voice assistant with face recognition security and intelligent automation capabilities.</strong>
+  <strong>An open-source Python-based personal voice assistant with face recognition security and automation capabilities.</strong>
   <br />
   <br />
   <a href="#-getting-started-in-under-5-minutes"><strong>🚀 Get Started</strong></a>
@@ -138,9 +138,26 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## 🌟 The Vision: Your Secure Personal AI Assistant
+## 👷 Project Builder
 
-**Jarvis** transforms your computer into an intelligent companion that not only responds to voice commands but also recognizes your face for secure access. Built with Python and powered by advanced AI libraries, Jarvis combines the convenience of voice interaction with the security of biometric authentication.
+Built and maintained by [Arpit Garg](https://github.com/Arpitgarg07).
+
+---
+
+## ✅ Phase 1 Status
+
+Phase 1 focuses on core voice commands, security, and local automation.
+
+- Voice interaction and command handling
+- Face recognition security flow
+- System utilities, productivity tools, and media controls
+- API-driven features (weather, news, email, and web search)
+
+---
+
+## 🌟 Project Overview: Secure Personal Voice Assistant
+
+**Jarvis** turns your computer into a reliable companion that responds to voice commands and recognizes your face for secure access. Built with Python and a modular feature set, Jarvis combines voice interaction with biometric security.
 
 Unlike commercial assistants, Jarvis runs entirely on your machine, giving you complete control over your data and privacy while providing powerful automation capabilities.
 
@@ -148,7 +165,7 @@ Unlike commercial assistants, Jarvis runs entirely on your machine, giving you c
 
 *   **🎤 Voice Interaction:** Natural speech recognition with contextual responses and greetings
 *   **👤 Face Recognition Security:** Biometric authentication with automatic screenshots for security
-*   **🌐 Web Intelligence:** Google search, Wikipedia summaries, news updates, and IP lookup
+*   **🌐 Web & Search:** Google search, Wikipedia summaries, news updates, and IP lookup
 *   **📧 Email Automation:** Voice-controlled email composition and sending
 *   **🖥️ System Control:** Application launching, file management, screenshots, and system monitoring  
 *   **🎵 Entertainment Hub:** YouTube control, music playback, and media management
@@ -207,11 +224,11 @@ Jarvis implements a multi-layered architecture with security at its core:
 
 | Component              | Technology                     | Purpose                                                                                    |
 | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------ |
-| **Speech Recognition** | **Google Speech API**          | High-accuracy voice command processing with natural language understanding                  |
+| **Speech Recognition** | **Google Speech API**          | High-accuracy voice command processing                                                      |
 | **Text-to-Speech**     | **pyttsx3**                    | Offline voice synthesis with customizable speech rates and voices                         |
 | **Face Recognition**   | **OpenCV + LBPH**              | Secure biometric authentication with Local Binary Patterns Histograms                     |
 | **GUI Framework**      | **Tkinter + PIL**              | Native cross-platform interface with animated GIF support                                 |
-| **Web Automation**     | **requests + BeautifulSoup**   | Intelligent web scraping and API interactions                                             |
+| **Web Automation**     | **requests + BeautifulSoup**   | Web scraping and API interactions                                                          |
 | **System Control**     | **pyautogui + psutil**         | Complete system automation and performance monitoring                                      |
 | **Email Service**      | **smtplib**                    | Secure email sending with Gmail integration                                               |
 | **Messaging**          | **pywhatkit + Twilio**         | WhatsApp automation and phone call capabilities                                           |
@@ -344,10 +361,9 @@ Jarvis implements a multi-layered architecture with security at its core:
 - Optional password protection
 - Local data processing for privacy
 
-### 🧠 **Smart Automation**
-- Context-aware command processing
-- Natural language understanding
-- Intelligent system control
+### 🧠 **Automation**
+- Command processing with keyword routing
+- System control and workflow helpers
 - Productivity tracking and analytics
 
 ### 🎯 **Focus Mode**
@@ -386,6 +402,11 @@ We welcome contributions! Here's how you can help:
 
 ---
 
+## 🌍 Open Source & GSSoC
+
+Jarvis is fully open source and welcomes community contributions. The project is part of the **GSSoC (GirlScript Summer of Code)** open-source ecosystem, and all contributors from the program are proudly recognized alongside the wider community.
+
+---
 
 ## 🔑 Required API Keys
 
@@ -497,16 +518,6 @@ For detailed testing documentation, see [tests/README.md](tests/README.md).
 
 ---
 
-## 🌟 Contributors
-
-Thanks to these amazing people who make Jarvis better:
-
-<a href="https://github.com/Arpitgarg07/Jarvis/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Arpitgarg07/Jarvis" />
-</a>
-
----
-
 ## 💬 Community & Support
 
 - **💬 Discussions:** [GitHub Discussions](https://github.com/Arpitgarg07/Jarvis/discussions)
@@ -527,13 +538,21 @@ This project is freely available under the **MIT License**. See the [LICENSE](LI
 - **OpenCV Community:** For powerful computer vision tools
 - **Python Community:** For the amazing libraries that power Jarvis
 - **Contributors:** Everyone who helps improve this project
-- **Users:** Thank you for choosing Jarvis as your AI assistant
+- **Users:** Thank you for choosing Jarvis as your assistant
 
 ---
+
+## 🌟 Contributors (GSSoC & Open Source)
+
+Thanks to these amazing people from **GSSoC** and the wider open-source community who make Jarvis better:
+
+<a href="https://github.com/Arpitgarg07/Jarvis/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Arpitgarg07/Jarvis" />
+</a>
 
 <div align="center">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
   <p><strong>🤖 "Sometimes you gotta run before you can walk." - Tony Stark</strong></p>
-  <p>Built with ❤️ and Python by Arpit Garg. Secure AI assistance for everyone.</p>
+  <p>Built with ❤️ and Python by Arpit Garg. Secure assistance for everyone.</p>
   <img src="https://komarev.com/ghpvc/?username=Arpitgarg07-Jarvis&label=Project%20Views&color=00BFFF&style=flat" alt="Project views" />
 </div>
