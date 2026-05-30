@@ -29,10 +29,7 @@ def TakeCommand():
         return "None"
     return query
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
-rate = engine.setProperty("rate",185)
+from core.voice import Speak
 
 def Speak(audio):
     engine.say(audio)

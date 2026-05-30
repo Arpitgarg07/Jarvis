@@ -10,9 +10,7 @@ import os
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
-# Import and run the main Jarvis application
-from core.Jarvismain import *
+from core.Jarvismain import run
 
 if __name__ == "__main__":
-    print("Starting Jarvis...")
-    # The main execution is already handled in Jarvismain.py
+    run()

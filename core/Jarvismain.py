@@ -1,770 +1,573 @@
- 
-#? install all library use in this by cd "pip install _______"
-import pyttsx3 
-import speech_recognition as sr 
+"""
+core/Jarvismain.py
+───────────────────
+Main Jarvis assistant loop.
+
+Clean rewrite:
+- No duplicate Speak / TakeCommand (imported from core.voice)
+- No hardcoded credentials (all from .env)
+- Command map instead of 50+ if/elif chain
+- Module-level side effects removed
+"""
+
 import datetime
-import webbrowser
-import cv2
 import os
-import requests
 import random
-import time
-import sys
-import pyautogui
-import speedtest
-import requests
-import numpy
 import subprocess
-from os import startfile
+import sys
+import time
+import webbrowser
+
+import pyautogui
+import requests
+import speedtest
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from plyer import notification
-from nltk.chat.util import Chat, reflections
-from requests import get
 from pygame import mixer
-from pywikihow import RandomHowTo, search_wikihow
-import pygame
-from features.communication.Whatsapp import sendMessage
-from features.utilities.battery import check_battery
-from features.entertainment.joke import jokes
-from features.system.battery import battery
-from features.utilities.FocusGraph import focus_graph
-from features.utilities.task_manager import (
-    add_task,
-    list_tasks,
-    overdue_tasks,
-    mark_completed,
-    set_priority,
-    summary_text,
-)
-from features.entertainment.game import game_play
-from features.search.SearchNow import searchGoogle, searchyoutube, searchwikipedia
-from features.utilities.Translator import translategl
-from features.utilities.Location import My_Location
-from features.utilities.Calculatenumbers import WolfRamAlpha, Calc
-from features.system.Dictapp import *  # All system functions
-from features.system.keyboard import volumeup, volumedown
-from features.communication.sendemail import *
-from features.utilities.sendcall import send_call
-from features.utilities.reminder import remindme
-from features.communication.Whatsappmessage import sendwhatsapp
-from features.entertainment.NewsRead import latestnews
+
+from core.voice import TakeCommand, Speak, Speak
 from core.GreetMe import greetMe
 
-import sys
-import os
-project_root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(project_root_dir)
-# Add feature subdirectories to Python path for dynamic imports used below
-features_dir = os.path.join(project_root_dir, "features")
-for sub in ["communication", "utilities", "entertainment", "system", "search"]:
-    sys.path.insert(0, os.path.join(features_dir, sub))
-#! If you want to use password then comment out
-  
-# # Paste this just below your import files
-# for i in range(3):
-#     a = input("Enter Password to open Jarvis :- ")
-#     pw_file = open("password.txt","r")
-#     pw = pw_file.read()
-#     pw_file.close()
-#     if (a==pw):
-#         print("WELCOME SIR ! PLZ SPEAK [WAKE UP] TO LOAD ME UP")
-        
-#         break
-#     elif (i==2 and a!=pw):
-#         exit()
+# ── Feature imports ───────────────────────────────────
+from features.communication.Whatsapp import sendMessage
+from features.communication.Whatsappmessage import sendwhatsapp
+from features.communication.sendemail import send_email, RECIPIENT_MAPPING
+from features.entertainment.NewsRead import latestnews
+from features.entertainment.joke import jokes
+from features.entertainment.game import game_play
+from features.search.SearchNow import searchGoogle, searchyoutube, searchwikipedia
+from features.system.battery import battery
+from features.system.Dictapp import (
+    take_screenshot, click_photo, minimize_window, maximize_window,
+    close_window, lock_pc, go_to_home_screen, open_search,
+    reload_page, switchtab, pin_screen, closeappweb, adjust_brightness,
+)
+from features.system.keyboard import volumeup, volumedown
+from features.system.FocusMode import focus_mode
+from features.utilities.Calculatenumbers import Calc
+from features.utilities.FocusGraph import focus_graph
+from features.utilities.Location import My_Location
+from features.utilities.Translator import translategl
+from features.utilities.alarm import set_alarm
+from features.utilities.reminder import remindme
+from features.utilities.sendcall import send_call
+from features.utilities.task_manager import (
+    add_task, summary_text, mark_completed, set_priority,
+)
 
-#     elif (a!=pw):
-#         print("Try Again")
+load_dotenv()
 
-
-#& Initialize the text-to-speech engine using the 'sapi5' speech API.
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')   # Available voice in you system.
-engine.setProperty('voice', voices[0].id)   # Set the voice property to the first voice in the list.
-rate = engine.setProperty("rate",185)   # Set the speech rate to 185. Higher values will increase the speech rate.
-
-#* Function to speak the provided audio using pyttsx3 text-to-speech engine.
-def Speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
-
-# Initialize a boolean variable 'is_paused' and set it to False
-is_paused = False
-
-#^ For taking all commands and listen the user voices.
-def TakeCommand():
-
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Listening...")
-        r.pause_threshold = 1       # Set the pause threshold to 1 second.
-        # r.energy_threshold = 200
-        audio = r.listen(source,0,4)        # Listen to the audio from the microphone, with optional timeout of 4 seconds.
-
-    try:
-        print("Understanding...")    
-        query = r.recognize_google(audio, language='en-in')     #* Recognize the speech using Google's speech recognition API.
-        print(f"Master said: {query}\n")
-
-    except Exception as e:
-        print("Say that again please...") 
-        return "None"
-    return query        # Return the recognized speech as the output of the function.
-
-
-#? Dictionary to store contact information with names as keys and phone numbers as values.
-contact_dict = {
-    "Name": "PHONE_NUMBER",
-    # Add more contacts as needed.
+# ── Config ────────────────────────────────────────────
+CHROME_PATH = os.getenv("CHROME_PATH", "C:/Program Files/Google/Chrome/Application/chrome.exe")
+CONTACT_DICT = {
+    # "name": "+91XXXXXXXXXX",
 }
+GOODBYES = ["You are great!", "Thanks for using me!", "Nice meeting with you!"]
 
-#// To run alarm.py we use this.
-def alarm(query):
-    timehere = open("data/Alarmtext.txt","a")
-    timehere.write(query)
-    timehere.close()
-    os.startfile("features/utilities/alarm.py")
+# ── Chrome browser setup ──────────────────────────────
+webbrowser.register("chrome", None, webbrowser.BackgroundBrowser(CHROME_PATH))
 
-#// For exit Greeting.
-goodbyes = ['You are great!', 'Thanks for using me!', 'Nice meeting with you!']
-pygame.init()
-pygame.mixer.init()
-coin_sound = pygame.mixer.Sound("assets/media/coin.mp3")
+# ── Sounds ────────────────────────────────────────────
+mixer.init()
+try:
+    coin_sound = mixer.Sound("assets/media/coin.mp3")
+except Exception:
+    coin_sound = None
 
 
+# ══════════════════════════════════════════════════════
+#  COMMAND HANDLERS
+# ══════════════════════════════════════════════════════
 
-#############################################################################################################^
-
-save_path = "screenshots/Lock Screen photos"
-
-# Temporarily bypass face recognition for testing
-# TODO: Uncomment these lines after running Sample generator.py and Model Trainer.py
-# recognizer = cv2.face.LBPHFaceRecognizer_create() # Local Binary Patterns Histograms
-# recognizer.read('trainer\\trainer.yml')   #load trained model
-# cascadePath = "haarcascade_frontalface_default.xml"
-# faceCascade = cv2.CascadeClassifier(cascadePath) #initializing haar cascade for object detection approach
-
-font = cv2.FONT_HERSHEY_SIMPLEX #denotes the font type
-
-
-id = 2 #number of persons you want to Recognize
-
-
-names = ['','arpit','raja']  #names, leave first empty bcz counter starts from 0
-
-# Camera initialization commented out for testing
-# cam = cv2.VideoCapture(0, cv2.CAP_DSHOW) #cv2.CAP_DSHOW to remove warning
-# cam.set(3, 640) # set video FrameWidht
-# cam.set(4, 480) # set video FrameHeight
-
-# Define min window size to be recognized as a face
-# minW = 0.1*cam.get(3)
-# minH = 0.1*cam.get(4)
-
-# flag = True
-
-# TEMPORARY BYPASS: Skip face recognition for testing
-# TODO: Remove this bypass after setting up face recognition
-print("Face recognition bypassed for testing - proceeding to voice assistant...")
-# Simulate successful authentication
-# Jump to the main assistant code after this while loop
-
-# Original face recognition code (commented out for testing):
-"""
-while True:
-
-    ret, img =cam.read() #read the frames using the above created object
-
-    converted_image = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)  #The function converts an input image from one color space to another
-
-    faces = faceCascade.detectMultiScale( 
-        converted_image,
-        scaleFactor = 1.2,
-        minNeighbors = 5,
-        minSize = (int(minW), int(minH)),
-       )
-    
-
-    for(x,y,w,h) in faces:
-
-        cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2) #used to draw a rectangle on any image
-
-        id, accuracy = recognizer.predict(converted_image[y:y+h,x:x+w]) #to predict on every single image
-
-        # Check if accuracy is less them 100 ==> "0" is perfect match 
-        if (accuracy < 100):
-            id = names[id]
-            accuracy = "  {0}%".format(round(100 - accuracy))
-            print("Verification Succesful!")
+def cmd_greet(query):
+    responses = {
+        "hello": "Hello sir, how can I help you!",
+        "hi": "Hello sir, how can I help you!",
+        "hey": "Hey! What can I do for you?",
+        "namaste": "Namaste, sir!",
+        "ram ram": "Ram Ram, Master!",
+        "good morning": "Good Morning Sir!",
+        "good evening": "Good Evening Sir!",
+        "good afternoon": "Good Afternoon Sir!",
+        "how are you": "Perfect, sir!",
+        "kaise ho": "I am good, thanks for asking!",
+    }
+    for key, reply in responses.items():
+        if key in query:
+            Speak(reply)
+            return
 
 
-        else:
-            id = "unknown"
-            accuracy = "  {0}%".format(round(100 - accuracy))
-            print("Please try again...")
-            
-
-        cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
-        cv2.putText(img, str(accuracy), (x+5,y+h-5), font, 1, (255,255,0), 1)  
-    
-    cv2.imshow('camera',img) 
-
-    k = cv2.waitKey(10) & 0xff
-    if k == 27:
-        break
-            
-    if id == "unknown":
-        time.sleep(1)
-        screenshot = pyautogui.screenshot()
-        save_path = r"Lock Screen photos"
-        filename = "screenshot.png"
-        screenshot.save(os.path.join(save_path, filename))
-        print(f"Screenshot saved as {os.path.join(save_path, filename)}")
-        print("Exiting system due to unknown identity.")
-        Speak("Exiting system due to unknown identity.")
-        print("try again")
-        exit()
-
-    elif id == "arpit" or id == "name2":
-        time.sleep(1)
-        screenshot = pyautogui.screenshot()
-        save_path = r"Lock Screen photos"
-        filename = "screenshot.png"
-        screenshot.save(os.path.join(save_path, filename))
-        print(f"Screenshot saved as {os.path.join(save_path, filename)}")
-        break         # Press 'ESC' for exiting video
-
-    if len(faces) == 0:
-        time.sleep(1)
-        screenshot = pyautogui.screenshot()
-        save_path = r"Lock Screen photos"
-        filename = "screenshot.png"
-        screenshot.save(os.path.join(save_path, filename))
-        print(f"Screenshot saved as {os.path.join(save_path, filename)}")        
-        print("Your Face is not detected, Please come in bright area.")
-        Speak("Your Face is not detected, Please come in bright area.")
-        exit()
-"""
-
-        
-# Do a bit of cleanup
-print("Face Recognization Succesfull")
-Speak("Face Recognization Succesfull")
-# cam.release()  # Commented out since we bypassed camera
-# cv2.destroyAllWindows()  # Commented out since we bypassed camera
+def cmd_translate(query):
+    query = query.replace("jarvis translate", "").replace("translate", "").strip()
+    translategl(query)
 
 
-########################################################################################################^
+def cmd_joke(_query):
+    jokes()
 
-subprocess.Popen(["python", "intro.py"], shell=True)
-time.sleep(17) #!HERE YOU TYPE SECONDS THAT HAVE BEEN TAKEN TO COMPLETE GIF
-pyautogui.hotkey('Alt','f4')
 
-if __name__ == "__main__": 
-#! For Executing all tasks.
+def cmd_battery(_query):
+    battery()
+
+
+def cmd_remember(query):
+    msg = query.replace("remember that", "").replace("jarvis", "").strip()
+    with open("data/Remember.txt", "a") as f:
+        f.write(msg + "\n")
+    Speak(f"Got it. I'll remember: {msg}")
+
+
+def cmd_recall(_query):
+    try:
+        with open("data/Remember.txt", "r") as f:
+            content = f.read()
+        Speak("You told me to " + content if content else "I don't have anything saved.")
+    except FileNotFoundError:
+        Speak("Nothing saved yet.")
+
+
+def cmd_focus_mode(_query):
+    focus_mode()
+
+
+def cmd_focus_graph(_query):
+    focus_graph()
+
+
+def cmd_game(_query):
+    game_play()
+
+
+def cmd_play_playlist(_query):
+    url = "https://www.youtube.com/watch?v=DbiRVNeZPnw&list=PLpmsNGoQrkhF1nNjDVXAcyVsNnLOdw_1h"
+    Speak("Music playing...")
+    webbrowser.get("chrome").open(url)
+
+
+def cmd_coin_flip(_query):
+    outcome = random.choice(["heads", "tails"])
+    if coin_sound:
+        coin_sound.play()
+    Speak(f"The coin landed on {outcome}!")
+
+
+def cmd_time(_query):
+    t = datetime.datetime.now().strftime("%H:%M:%S")
+    Speak(f"Sir, the time is {t}")
+
+
+def cmd_alarm(query):
+    Speak("What time should I set the alarm for?")
+    alarm_time = input("Enter alarm time (HH and MM and SS): ")
+    set_alarm(alarm_time)
+    Speak("Alarm set.")
+
+
+def cmd_remind(_query):
+    remindme()
+
+
+def cmd_add_task(query):
+    urgent = "urgent" in query
+    clean = (query.replace("jarvis", "")
+                  .replace("add urgent task", "")
+                  .replace("add task", "")
+                  .strip())
+    priority = "high" if urgent else "normal"
+    deadline_text = None
+    for kw in [" by ", " before ", " at ", " on "]:
+        if kw in clean:
+            parts = clean.split(kw, 1)
+            clean = parts[0].strip()
+            deadline_text = parts[1].strip()
+            break
+    if clean:
+        t = add_task(clean, deadline_text, priority)
+        Speak(f"Task added: {t['title']}")
+    else:
+        Speak("Please say the task name.")
+
+
+def cmd_tasks_today(_query):
+    Speak(summary_text("today"))
+
+
+def cmd_tasks_week(_query):
+    Speak(summary_text("week"))
+
+
+def cmd_tasks_overdue(_query):
+    Speak(summary_text("overdue"))
+
+
+def cmd_mark_done(query):
+    title = (query.replace("jarvis", "")
+                  .replace("mark task completed", "")
+                  .replace(":", "")
+                  .strip())
+    done = mark_completed(title)
+    Speak(f"Marked done: {done['title']}" if done else "Task not found.")
+
+
+def cmd_ip(_query):
+    ip = requests.get("https://api.ipify.org").text
+    Speak(f"Your IP address is {ip}")
+
+
+def cmd_temperature(_query):
+    url = "https://www.google.com/search?q=temperature+in+jaipur"
+    r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+    data = BeautifulSoup(r.text, "html.parser")
+    try:
+        temp = data.find("div", class_="BNeawe").text
+        Speak(f"Current temperature is {temp}")
+    except Exception:
+        Speak("Could not fetch temperature right now.")
+
+
+def cmd_calculate(query):
+    query = query.replace("calculate", "").replace("jarvis", "").strip()
+    Calc(query)
+
+
+def cmd_internet_speed(_query):
+    Speak("Testing internet speed, please wait...")
+    wifi = speedtest.Speedtest()
+    upload = wifi.upload() / 1048576
+    download = wifi.download() / 1048576
+    Speak(f"Download speed is {download:.1f} Mbps and upload speed is {upload:.1f} Mbps")
+
+
+def cmd_send_call(_query):
+    send_call()
+
+
+def cmd_search_google(query):
+    query = query.replace("jarvis", "").replace("google search", "").replace("google", "").strip()
+    searchGoogle(query)
+
+
+def cmd_search_youtube(query):
+    searchyoutube(query)
+
+
+def cmd_search_wikipedia(query):
+    searchwikipedia(query)
+
+
+def cmd_news(_query):
+    latestnews()
+
+
+def cmd_location(_query):
+    My_Location()
+
+
+def cmd_whatsapp(query):
+    if "whatsapp message" in query:
+        sendwhatsapp()
+    else:
+        sendMessage(CONTACT_DICT)
+
+
+def cmd_email(_query):
+    Speak("Who do you want to email?")
+    name = TakeCommand().lower()
+    email_addr = RECIPIENT_MAPPING.get(name)
+    if not email_addr:
+        Speak("Recipient not found.")
+        return
+    Speak("What is the subject?")
+    subject = TakeCommand()
+    Speak("What is the message?")
+    content = TakeCommand()
+    send_email(email_addr, subject, content)
+
+
+def cmd_screenshot(_query):
+    take_screenshot()
+
+
+def cmd_open_app(query):
+    app = query.replace("open", "").replace("jarvis", "").strip()
+    pyautogui.press("super")
+    pyautogui.typewrite(app)
+    pyautogui.sleep(1)
+    pyautogui.press("enter")
+    Speak(f"Launching {app}...")
+
+
+def cmd_close(query):
+    closeappweb(query)
+
+
+def cmd_volume_up(_query):
+    volumeup()
+    Speak("Volume up.")
+
+
+def cmd_volume_down(_query):
+    volumedown()
+    Speak("Volume down.")
+
+
+def cmd_minimize(_query):
+    minimize_window()
+
+
+def cmd_maximize(_query):
+    maximize_window()
+
+
+def cmd_close_window(_query):
+    close_window()
+
+
+def cmd_lock(_query):
+    lock_pc()
+
+
+def cmd_home(_query):
+    go_to_home_screen()
+
+
+def cmd_reload(_query):
+    reload_page()
+
+
+def cmd_switch_tab(_query):
+    switchtab()
+
+
+def cmd_pin_screen(_query):
+    pin_screen()
+
+
+def cmd_brightness(query):
+    Speak("At which level?")
+    level = TakeCommand().lower()
+    adjust_brightness(level)
+
+
+def cmd_click_photo(_query):
+    click_photo()
+
+
+def cmd_open_search(_query):
+    open_search()
+
+
+def cmd_website(query):
+    sites = {
+        "stackoverflow": "stackoverflow.com",
+        "amazon": "amazon.in",
+        "flipkart": "flipkart.com",
+        "meesho": "meesho.com",
+        "myntra": "myntra.com",
+        "speed test": "fast.com",
+        "our channel": "https://www.youtube.com/channel/UCAi-EONczHNaAqr_Ff3HRsA",
+    }
+    for key, url in sites.items():
+        if key in query:
+            webbrowser.get("chrome").open(url)
+            Speak(f"Opening {key}...")
+            return
+
+
+def cmd_youtube_control(query):
+    controls = {
+        "full screen": "f", "theater mode": "t", "mini player": "i",
+        "pause": "k", "play": "k", "rewind": "j", "forward": "l",
+        "mute": "m",
+    }
+    for key, hotkey in controls.items():
+        if key in query:
+            pyautogui.press(hotkey)
+            Speak(f"{key} activated.")
+            return
+
+
+def cmd_change_password(_query):
+    Speak("What is the new password?")
+    new_pw = input("Enter new password: ")
+    with open("data/password.txt", "w") as f:
+        f.write(new_pw)
+    Speak("Password updated.")
+
+
+def cmd_shutdown(_query):
+    Speak("Are you sure you want to shutdown?")
+    confirm = TakeCommand().lower()
+    if "yes" in confirm:
+        Speak("Shutting down.")
+        os.system("shutdown /s /t 1")
+
+
+def cmd_exit(_query):
+    Speak(random.choice(GOODBYES))
+    sys.exit()
+
+
+# ══════════════════════════════════════════════════════
+#  COMMAND MAP  — keyword → handler function
+#  Order matters: more specific keywords first
+# ══════════════════════════════════════════════════════
+
+COMMAND_MAP = [
+    # Sleep / exit
+    ("go to sleep",         lambda q: None),          # handled in loop
+    ("exit",                cmd_exit),
+    ("shutdown",            cmd_shutdown),
+
+    # Greetings
+    ("hello",               cmd_greet),
+    ("hi ",                 cmd_greet),
+    ("hey",                 cmd_greet),
+    ("namaste",             cmd_greet),
+    ("ram ram",             cmd_greet),
+    ("good morning",        cmd_greet),
+    ("good evening",        cmd_greet),
+    ("good afternoon",      cmd_greet),
+    ("how are you",         cmd_greet),
+    ("kaise ho",            cmd_greet),
+
+    # Utilities
+    ("translate",           cmd_translate),
+    ("joke",                cmd_joke),
+    ("battery",             cmd_battery),
+    ("remember that",       cmd_remember),
+    ("what do you remember",cmd_recall),
+    ("flip a coin",         cmd_coin_flip),
+    ("coin flip",           cmd_coin_flip),
+    ("toss",                cmd_coin_flip),
+    ("time",                cmd_time),
+    ("temperature",         cmd_temperature),
+    ("calculate",           cmd_calculate),
+    ("ip address",          cmd_ip),
+    ("internet speed",      cmd_internet_speed),
+
+    # Tasks
+    ("add urgent task",     cmd_add_task),
+    ("add task",            cmd_add_task),
+    ("tasks today",         cmd_tasks_today),
+    ("tasks this week",     cmd_tasks_week),
+    ("overdue tasks",       cmd_tasks_overdue),
+    ("mark task completed", cmd_mark_done),
+    ("set an alarm",        cmd_alarm),
+    ("remind me",           cmd_remind),
+
+    # Focus
+    ("focus mode",          cmd_focus_mode),
+    ("show my focus",       cmd_focus_graph),
+
+    # Entertainment
+    ("open game",           cmd_game),
+    ("play playlist",       cmd_play_playlist),
+    ("news",                cmd_news),
+
+    # Search
+    ("google",              cmd_search_google),
+    ("youtube search",      cmd_search_youtube),
+    ("youtube",             cmd_search_youtube),
+    ("wikipedia",           cmd_search_wikipedia),
+
+    # Communication
+    ("whatsapp message",    cmd_whatsapp),
+    ("whatsapp",            cmd_whatsapp),
+    ("write an email",      cmd_email),
+    ("send call",           cmd_send_call),
+
+    # Location
+    ("my location",         cmd_location),
+    ("where i am",          cmd_location),
+
+    # YouTube controls
+    ("full screen",         cmd_youtube_control),
+    ("theater mode",        cmd_youtube_control),
+    ("mini player",         cmd_youtube_control),
+    ("rewind",              cmd_youtube_control),
+    ("forward",             cmd_youtube_control),
+
+    # Volume
+    ("volume up",           cmd_volume_up),
+    ("volume down",         cmd_volume_down),
+    ("mute",                cmd_youtube_control),
+    ("pause",               cmd_youtube_control),
+    ("play",                cmd_youtube_control),
+
+    # System
+    ("screenshot",          cmd_screenshot),
+    ("click photo",         cmd_click_photo),
+    ("minimise",            cmd_minimize),
+    ("minimize",            cmd_minimize),
+    ("maximize",            cmd_maximize),
+    ("maximise",            cmd_maximize),
+    ("close window",        cmd_close_window),
+    ("close tab",           cmd_close_window),
+    ("lock",                cmd_lock),
+    ("home",                cmd_home),
+    ("reload",              cmd_reload),
+    ("switch tab",          cmd_switch_tab),
+    ("switch app",          cmd_switch_tab),
+    ("pin screen",          cmd_pin_screen),
+    ("brightness",          cmd_brightness),
+    ("open search",         cmd_open_search),
+    ("change password",     cmd_change_password),
+
+    # Websites
+    ("stackoverflow",       cmd_website),
+    ("amazon",              cmd_website),
+    ("flipkart",            cmd_website),
+    ("meesho",              cmd_website),
+    ("myntra",              cmd_website),
+    ("speed test",          cmd_website),
+    ("our channel",         cmd_website),
+
+    # Open / close apps (generic — keep last)
+    ("open",                cmd_open_app),
+    ("close",               cmd_close),
+]
+
+
+def handle_command(query: str) -> bool:
+    """Route query to the right handler. Returns True if handled."""
+    for keyword, handler in COMMAND_MAP:
+        if keyword in query:
+            handler(query)
+            return True
+    Speak("I didn't understand that. Could you repeat?")
+    return False
+
+
+# ══════════════════════════════════════════════════════
+#  MAIN LOOP
+# ══════════════════════════════════════════════════════
+
+def run():
+    print("Jarvis is ready. Say 'wake up' to start.")
+
     while True:
         query = TakeCommand().lower()
+        if query == "none":
+            continue
 
-        #* To Wake up Jarvis.
-        if "wake up" in query or "start" in query or "makeup" in query or "breakup"in query:
-            from GreetMe import greetMe
+        if "wake up" in query or "start" in query:
             greetMe()
-            #* We will use again while True to pause and play jarvis.
+
+            # Active session loop
             while True:
-                query= TakeCommand().lower()
+                query = TakeCommand().lower()
+                if query == "none":
+                    continue
 
-                # Set the path to the Chrome executable
-                # Which browser you want to use to execute you can use here.
-                chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
-                # Configure the web browser to use.
-                webbrowser.register('chrome', None, webbrowser.BackgroundBrowser(chrome_path))
-    
-
-                #* To Pause the jarvis we will use it.
                 if "go to sleep" in query:
-                    Speak("Ok sir, you can call me anytime.")
+                    Speak("Ok sir, call me anytime.")
                     break
 
-                elif "translate" in query:
-                    from Translator import translategl
-                    query = query.replace("jarvis translate","")
-                    query = query.replace("translate","")
-                    translategl(query)
-
-                elif "joke" in query:
-                    from joke import jokes
-                    jokes()
- 
-                #####################################################!
-                elif "change password" in query:
-                    Speak("What's the new password")
-                    new_pw = input("Enter the new password\n")
-                    new_password = open("data/password.txt","w")
-                    new_password.write(new_pw)
-                    new_password.close()
-                    Speak("Done sir")
-                    Speak(f"Your new password is{new_pw}")
-                ######################################################!
-
-                #^ Normal Conversation.
-                elif "hello" in query or "yo" in query or "hey there" in query or "hey" in query or "hi " in query or "hi" in query or "hello arvis" in query or "hi arpit" in query or "hlo" in query or "ram ram" in query or "good morning" in query:
-                    Speak("Hello sir, How are you!")
-                elif "i am fine" in query:
-                    Speak("Great! What about yourself?")
-                elif "how are you" in query or "how r you" in query or "how r u" in query:
-                    Speak("Perfect sir!")
-                elif 'namaste' in query or "ram ram" in query:
-                    Speak("ram ram, Master!")
-                elif "kaise ho" in query or "tum ho kaise" in query:
-                    Speak("I am good, thanks for asking!")
-                elif "Flip a coin" in query or "coin flip" in query or "toss a coin" in query or "toss" in query:
-                    outcome = random.choice(["head", "tail"])
-                    # Speak(random.choice(["head", "tail"]))
-
-                    if outcome == "head":
-                        coin_sound.play()
-                    else:
-                        coin_sound.play()
-                    print(f"The coin landed on {outcome}!")
-                    Speak(f"The coin landed on {outcome}!")
-                elif "thanks" in query or "thank" in query or "thank you" in query or "thanks bro" in query:
-                    Speak("My pleasure.")
-                elif "you are great" in query:
-                    Speak("Thank You!, for your compliment.")
-                elif "Gm" in query or "good morning" in query or "morning" in query or "subhprabhat" in query:
-                    Speak("Good Morning Sir!")
-                elif "good evening" in query or "evening" in query:
-                    Speak("Good Evening Sir!")
-                elif "Good afternoon" in query or "noon" in query or "good afternoon" in query:
-                    Speak("Good Afternoon Sir!")
-                elif "feeling sleepy" in query or "good night" in query:
-                    Speak("Ok sir, if you want to close then speak [exit]")
-                elif "hate" in query:
-                    Speak("I'm sorry you have been hurt.")
-                elif "you are lying" in query or "lie" in query:
-                    Speak("Please correct me if i am wrong!, if you can't do then go and correct yourself")
-                elif "tumhe kisne banaya" in query or "who made you" in query:
-                    Speak("The Great Mater Arpit Garg had made me!")
-                elif "fine" in query:
-                    Speak("Great!, How may I assist?")
-                elif "good" in query:
-                    Speak("Thanks!. It's always nice talking with people who care about their health :) ")
-
-                #! By this Function be can know our battery percentage.
-                elif "battery" in query:
-                    from battery import battery
-                    battery()
-
-                #! To Remember jarvis anything.
-                elif "remember that" in query:
-                    rememberMessage = query.replace("remember that","")
-                    rememberMessage = query.replace("jarvis","")
-                    Speak("You told me to"+rememberMessage)
-                    remember = open("data/Remember.txt","a")
-                    remember.write(rememberMessage)
-                    remember.close()
-                elif "what do you remember" in query:
-                    remember = open("data/Remember.txt","r")
-                    Speak("You told me to" + remember.read())  
-
-                #*Focus Mode Function.
-                elif "focus mode" in query:
-                    a = int(input("Are you sure that you want to enter focus mode :- [1 for YES / 2 for NO "))
-                    if (a==1):
-                        Speak("Entering the focus mode....")
-                        os.startfile("FocusMode.py")
-                        exit()
-                    else:
-                        pass
-     
-                elif "show my focus" in query:
-                    from FocusGraph import focus_graph
-                    focus_graph()
-
-                elif "open game" in query:
-                    from game import game_play
-                    game_play()                
-
-                #^ Playing playlist from youtube.
-                elif 'play playlist' in query:
-                    url = "https://www.youtube.com/watch?v=DbiRVNeZPnw&list=PLpmsNGoQrkhF1nNjDVXAcyVsNnLOdw_1h&pp=gAQBiAQB8AUB"
-                    Speak("Music playing...")
-                    webbrowser.get('chrome').open(url)
-                    print("Music playing...")
-
-                elif 'our channel' in query:
-                    url = "https://www.youtube.com/channel/UCAi-EONczHNaAqr_Ff3HRsA"
-                    Speak("Channel opening...")
-                    webbrowser.get('chrome').open(url)
-                    print("Channel opening...")
-
-                elif 'youtube audio library' in query:
-                    url = "https://studio.youtube.com/channel/UCAi-EONczHNaAqr_Ff3HRsA/music"
-                    Speak("opening audio library...")
-                    webbrowser.get('chrome').open(url)
-                    print("opening audio library...")
-
-                #& Finding you current location.
-                elif 'my location' in query or 'where i am' in query:
-                    from Location import My_Location
-                    My_Location()
-
-                #^ To reaching any website or page.
-                elif "google" in query:
-                    import wikipedia as googlescrap
-                    query = query.replace("jarvis","")
-                    query = query.replace("google search","")
-                    query = query.replace("google","")
-                    from SearchNow import searchGoogle
-                    searchGoogle(query)
-
-                elif "youtube" in query:
-                    from SearchNow import searchyoutube
-                    searchyoutube(query)
-                
-                elif "wikipedia" in query:
-                    from SearchNow import searchwikipedia
-                    searchwikipedia(query)
-
-                #& Youtube Running Shortcuts.
-                elif "full screen mode" in query:
-                    pyautogui.press("f")
-                    print("video played in full screen")
-                elif "theater mode" in query:
-                    pyautogui.press("t")
-                    print("video played in theater mode")
-                elif "mini player mod" in query:
-                    pyautogui.press("i")
-                    print("video played in miniplayer mode")
-                elif "pause" in query:
-                    pyautogui.press("k")
-                    Speak("video paused")
-                elif "play" in query:
-                    pyautogui.press("k")
-                    Speak("video played")
-                elif "rewind" in query:
-                    pyautogui.press("j")
-                    print("video rewind")
-                elif "forward" in query:
-                    pyautogui.press("l")
-                    print("video forwarded")
-                elif "previous video" in query:
-                    pyautogui.press("Shift","p")
-                    Speak("Switching...")
-                elif "next video" in query:
-                    pyautogui.press("Shift","n")
-                    Speak("Switching...")
-                elif "mute" in query:
-                    pyautogui.press("m")
-                    Speak("video muted")
-                elif "volume increse" in query:
-                    from keyboard import volumeup
-                    Speak("Turning volume up,sir")
-                    volumeup()
-                elif "volume down" in query:
-                    from keyboard import volumedown
-                    Speak("Turning volume down, sir")
-                    volumedown()
-
-                #^ open direct Websites.
-                elif 'speed test by chrome' in query:
-                    webbrowser.get('chrome').open("fast.com")         
-        
-                elif 'stackoverflow' in query:
-                    webbrowser.get('chrome').open("stackoverflow.com")  
-        
-                elif 'amazon' in query:
-                    webbrowser.get('chrome').open("amazon.in")
-        
-                elif'flipkart' in query:
-                    webbrowser.get('chrome').open("flipkart.com")
-        
-                elif 'meesho' in query or 'open me show' in query:
-                    webbrowser.get('chrome').open("meesho.com")
-        
-                elif'myntra' in query:
-                    webbrowser.get('chrome').open("myntra.com")
-
-                #* Windows shortcut
-                elif "minimise" in query or "minimize" in query:
-                    from Dictapp import minimize_window
-                    minimize_window()
-
-                elif "stick screen" in query or "unpin screen" in query or "pin screen" in query:
-                    from Dictapp import pin_screen
-                    pin_screen()
-
-                elif "switch tab" in query or "switch app" in query:
-                    from Dictapp import switchtab
-                    switchtab()
-
-                elif "screenshot" in query:
-                    from Dictapp import take_screenshot
-                    take_screenshot()
-
-                elif "click photo" in query or "click my photo" in query:
-                    from Dictapp import click_photo
-                    click_photo()
-
-                elif "open search" in query:
-                    from Dictapp import open_search
-                    open_search()
-            
-                elif "close window" in query or "close tab" in query:
-                    from Dictapp import close_window
-                    close_window()
-
-                elif "close my computer" in query:
-                    from Dictapp import lock_pc
-                    lock_pc()
-
-                elif "home" in query or "close all" in query:
-                    from Dictapp import go_to_home_screen
-                    go_to_home_screen()
-            
-                elif "reload" in query:
-                    from Dictapp import reload_page
-                    reload_page()
-            
-                elif "maximize" in query or "maximise" in query:
-                    from Dictapp import maximize_window
-                    maximize_window()
-        
-                elif "brightness" in query or "screen light" in query:
-                    Speak("at which level")
-                    from Dictapp import adjust_brightness
-                    adjust_brightness()    
-                
-                #! Opening any app and any Software.
-                elif "open" in query:   #EASY METHOD
-                    query = query.replace("open","")
-                    query = query.replace("jarvis","")
-                    pyautogui.press("super")
-                    pyautogui.typewrite(query)
-                    pyautogui.sleep(1)
-                    Speak("Launching Sir...")
-                    pyautogui.press("enter")   
-
-                #! Closing any app and Software.
-                elif "close" in query:
-                    from Dictapp import closeappweb
-                    closeappweb(query)
-
-                #& To listen newses.
-                elif "news" in query:
-                    from NewsRead import latestnews
-                    latestnews()
-
-                #^ Send whatsapp message by pyautogui
-                elif "whatsapp message" in query:
-                    from Whatsappmessage import sendwhatsapp
-                    sendwhatsapp()
-
-                #* Send any message by command
-                elif "whatsapp" in query:
-                    from Whatsapp import sendMessage
-                    sendMessage(contact_dict)
-
-                #~ Direct internet speed.
-                elif "internet speed" in query:
-                    wifi  = speedtest.Speedtest()
-                    upload_net = wifi.upload()/1048576         #Megabyte = 1024*1024 Bytes
-                    download_net = wifi.download()/1048576
-                    print("Wifi Upload Speed is", upload_net)
-                    print("Wifi download speed is ",download_net)
-                    Speak(f"Wifi download speed is {download_net}")
-                    Speak(f"Wifi Upload speed is {upload_net}")
-                
-                #! Send Call by Twilio.
-                elif "send call" in query:
-                    from sendcall import send_call
-                    send_call()
+                handle_command(query)
 
 
-                #* To Speak Current time.
-                elif 'time' in query:
-                    strTime = datetime.datetime.now().strftime("%H:%M:%S")    
-                    print(f"Sir, the time is {strTime}") 
-                    Speak(f"Sir, the time is {strTime}") 
-
-                #& For set an alarm.
-                elif "set an alarm" in query:
-                    strTime = datetime.datetime.now().strftime("%H:%M:%S")    
-                    print(f"Sir, the time is {strTime}") 
-                    print("input time example:- 10 and 10 and 10")
-                    Speak("Set the time")
-                    a = input("Please tell the time :- ")
-                    alarm(a)
-                    Speak("Done, alarm set.")
-
-                #*Reminder set.
-                elif "remind me" in query:
-                    from reminder import remindme
-                    remindme()
-
-                # Task management commands
-                elif "add task" in query or "add urgent task" in query:
-                    spoken = query
-                    clean = spoken.replace("jarvis", "").replace("add urgent task", "").replace("add task", "").strip()
-                    pr = "high" if "add urgent task" in spoken else "normal"
-                    # Try to split on common deadline prepositions
-                    deadline_text = None
-                    for kw in [" by ", " before ", " at ", " on "]:
-                        if kw in clean:
-                            parts = clean.split(kw, 1)
-                            description = parts[0].strip()
-                            deadline_text = parts[1].strip()
-                            break
-                    else:
-                        description = clean
-                    if description:
-                        t = add_task(description, deadline_text, pr)
-                        Speak(f"Task added: {t['title']}")
-                    else:
-                        Speak("Please say the task description again.")
-
-                elif "what are my tasks today" in query:
-                    Speak(summary_text("today"))
-
-                elif "what are my tasks this week" in query:
-                    Speak(summary_text("week"))
-
-                elif "show overdue tasks" in query or "overdue tasks" in query:
-                    Speak(summary_text("overdue"))
-
-                elif "mark task completed" in query:
-                    title = query.replace("jarvis", "").replace("mark task completed", "").replace(":", "").strip()
-                    done = mark_completed(title)
-                    if done:
-                        Speak(f"Marked completed: {done['title']}")
-                    else:
-                        Speak("I could not find that task.")
-
-                elif "set task priority" in query:
-                    # Example: set task priority: Call mom to high
-                    clean = query.replace("jarvis", "").replace("set task priority", "").replace(":", "").strip()
-                    if " to " in clean:
-                        title, pr = clean.split(" to ", 1)
-                        updated = set_priority(title.strip(), pr.strip())
-                        if updated:
-                            Speak(f"Priority set to {updated['priority']} for {updated['title']}")
-                        else:
-                            Speak("I could not find that task.")
-                    else:
-                        Speak("Please specify the task and the priority.")
-
-                #^ Web ip address finding
-                elif "ip ad dress" in query:
-                    ip = get('https://api.ipify.org').text
-                    print(f"your IP address is {ip}")
-                    Speak(f"your IP address is {ip}")
-
-                #^ To know the current temperature of city.
-                elif "temperature" in query:
-                    search = "temperature in rajasthan"
-                    url = f"https://www.google.com/search?q={search}"
-                    r  = requests.get(url)
-                    data = BeautifulSoup(r.text,"html.parser")
-                    temp = data.find("div", class_ = "BNeawe").text
-                    Speak(f"current{search} is {temp}")
-
-                #* To Calculate any digit.
-                elif "calculate" in query:
-                    from Calculatenumbers import WolfRamAlpha
-                    from Calculatenumbers import Calc
-                    query = query.replace("calculate","")
-                    query = query.replace("jarvis","")
-                    Calc(query)
-     
-                #! For exit from Jarvis.
-                elif 'exit' in query:
-                    Speak(random.choice(goodbyes))
-                    sys.exit()
-
-                elif "shutdown the system" in query:
-                    Speak("Are You sure you want to shutdown")
-                    print("Do you wish to shutdown your PC? (yes/no)")
-                    shutdown = TakeCommand().lower()
-                    if shutdown == "yes":
-                        Speak("Ok, Sir system is going to shutdown.")
-                        os.system("shutdown /s /t 1")
-
-                    elif shutdown == "no":
-                        Speak("OK, Sir!")
-                        break
-
-                elif "logout" in query:
-                    Speak('logging out in 5 second')
-                    time.sleep(5)
-                    os.system("shutdown - l")
-                
-                elif "schedule my day" in query:
-                    tasks = [] #Empty list 
-                    Speak("Do you want to clear old tasks (Plz speak YES or NO)")
-                    query = TakeCommand().lower()
-                    if "yes" in query:
-                        file = open("tasks.txt","w")
-                        file.write(f"")
-                        file.close()
-                        no_tasks = int(input("Enter the no. of tasks :- "))
-                        i = 0
-                        for i in range(no_tasks):
-                            tasks.append(input("Enter the task :- "))
-                            file = open("tasks.txt","a")
-                            file.write(f"{i}. {tasks[i]}\n")
-                            file.close()
-                    elif "no" in query:
-                        i = 0
-                        no_tasks = int(input("Enter the no. of tasks :- "))
-                        for i in range(no_tasks):
-                            tasks.append(input("Enter the task :- "))
-                            file = open("tasks.txt","a")
-                            file.write(f"{i}. {tasks[i]}\n")
-                            file.close()
-
-                elif "show my schedule" in query:
-                    file = open("tasks.txt","r")
-                    content = file.read()
-                    file.close()
-                    mixer.init()
-                    mixer.music.load("assets/media/notification.mp3")
-                    mixer.music.play()
-                    notification.notify(
-                        title = "My schedule :-",
-                        messageschedule = content,
-                        timeout = 15
-                        )
-                
-                
-                #* send email Function.
-                if "write an email" in query:
-                    print("To whom do you want to send the email?")
-                    Speak("To whom do you want to send the email?")
-      
-                    recipient_name = TakeCommand().lower()
-                    from sendemail import recipient_mapping
-                    recipient_email = recipient_mapping.get(recipient_name)
-          
-                    if recipient_email:
-                        print("What's the subject of the email?")
-                        Speak("What's the subject of the email?")
-                        subject = TakeCommand().lower()
-                        from sendemail import send_email
-                        from sendemail import sender_email
-                        from sendemail import sender_password
-          
-                        print("What's the content of the email?")
-                        Speak("What's the content of the email?")
-                        content = TakeCommand().lower()
-          
-                      
-                        send_email(sender_email, sender_password, recipient_email, subject, content)
-                    else:
-                        print("Sorry, the recipient's email address is not found.")
-                        Speak("Sorry, the recipient's email address is not found.")      
-
-
-
-                
-
-
+if __name__ == "__main__":
+    run()

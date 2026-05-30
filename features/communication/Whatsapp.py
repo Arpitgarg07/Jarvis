@@ -10,10 +10,7 @@ from datetime import datetime
 import time
 import pyautogui
 
-engine = pyttsx3.init("sapi5")
-voices = engine.getProperty("voices")
-engine.setProperty("voice", voices[0].id)
-rate = engine.setProperty("rate",185)
+from core.voice import Speak
 
 def Speak(audio):
     engine.say(audio)
