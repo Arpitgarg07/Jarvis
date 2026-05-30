@@ -1,61 +1,29 @@
 import pywhatkit
-import pyttsx3
-import speech_recognition as sr
 import webbrowser
-from bs4 import BeautifulSoup
-from time import sleep
-import os 
-from datetime import timedelta
-from datetime import datetime
+from datetime import timedelta, datetime
 import time
+import os
 import pyautogui
 
-from core.voice import Speak
-
-def Speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
-
-
-#^ For taking all commands and listen the user voices.
-def TakeCommand():
-
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Listening...")
-        r.pause_threshold = 1
-        # r.energy_threshold = 200
-        audio = r.listen(source,0,4)
-
-    try:
-        print("Understanding...")    
-        query = r.recognize_google(audio, language='en-in')
-        print(f"Master said: {query}\n")
-
-    except Exception as e:
-        print("Say that again please...") 
-        return "None"
-    return query
+from core.voice import Speak, TakeCommand
 
 def sendMessage(contact_dict):
-
-    strTime = int(datetime.now().strftime("%H"))
-    update = int((datetime.now() + timedelta(minutes=2)).strftime("%M"))
-
     Speak("Who do you want to message?")
     contact_name = TakeCommand().lower()
 
-    if contact_name in contact_dict:
-        Speak("What's the message?")
-        message = TakeCommand()
-        contact_number = contact_dict[contact_name]
-        pywhatkit.sendwhatmsg(contact_number, message, time_hour=strTime, time_min=update)
-    
-        Speak("Message delivered!")
-        pyautogui.hotkey('Alt','f4')
+    if contact_name not in contact_dict:
+        Speak("Contact not found.")
+        return
 
-    else:
-        Speak("Sorry, I couldn't find the contact.")
+    Speak("What's the message?")
+    message = TakeCommand()
+    contact_number = contact_dict[contact_name]
 
-
-
+    # WhatsApp Desktop app se seedha
+    url = f"whatsapp://send?phone={contact_number}&text={message}"
+    os.startfile(url)
+    time.sleep(4)
+    pyautogui.hotkey('enter')
+    time.sleep(1)
+    pyautogui.hotkey('alt', 'f4')
+    Speak("Message sent!")

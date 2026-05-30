@@ -1,16 +1,11 @@
-import pyttsx3
 import speech_recognition as sr
-
-_engine = pyttsx3.init('sapi5')
-_voices = _engine.getProperty('voices')
-_engine.setProperty('voice', _voices[0].id)
-_engine.setProperty('rate', 185)
+import win32com.client as wincl
 
 
 def Speak(audio: str) -> None:
     print(f"Jarvis: {audio}")
-    _engine.say(audio)
-    _engine.runAndWait()
+    speaker = wincl.Dispatch("SAPI.SpVoice")
+    speaker.Speak(audio)
 
 
 def TakeCommand() -> str:

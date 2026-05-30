@@ -16,6 +16,7 @@ load_dotenv()
 # Add recipient name → email mappings here
 RECIPIENT_MAPPING = {
     "example": "example@gmail.com",
+    "arpit garg": "arpitgarg5689@gmail.com",
     # "mom": "mom@gmail.com",
 }
 

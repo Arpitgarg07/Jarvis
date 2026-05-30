@@ -1,10 +1,3 @@
-"""
-features/search/SearchNow.py
-──────────────────────────────
-Web search: Google, YouTube, Wikipedia.
-Bug fixed: TakeCommand() no longer runs at import time.
-"""
-
 import webbrowser
 import wikipedia
 import pywhatkit
@@ -27,21 +20,18 @@ def searchyoutube(query: str) -> None:
              .replace("youtube search", "")
              .replace("search on youtube", "")
              .strip())
-    url = f"https://www.youtube.com/results?search_query={query}"
     Speak("Opening YouTube.")
-    webbrowser.open(url)
+    webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
 
 
 def searchwikipedia(query: str) -> None:
     query = (query
              .replace("wikipedia", "")
              .replace("jarvis", "")
-             .replace("search on wikipedia", "")
              .strip())
     Speak("Searching Wikipedia...")
     try:
         result = wikipedia.summary(query, sentences=2)
-        print(result)
         Speak(result)
     except Exception:
         Speak("Could not find results on Wikipedia.")

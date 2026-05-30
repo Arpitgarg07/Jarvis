@@ -26,7 +26,7 @@ from dotenv import load_dotenv
 from plyer import notification
 from pygame import mixer
 
-from core.voice import TakeCommand, Speak, Speak
+from core.voice import TakeCommand, Speak
 from core.GreetMe import greetMe
 
 # ── Feature imports ───────────────────────────────────
@@ -56,24 +56,24 @@ from features.utilities.task_manager import (
     add_task, summary_text, mark_completed, set_priority,
 )
 
-load_dotenv()
 
 # ── Config ────────────────────────────────────────────
 CHROME_PATH = os.getenv("CHROME_PATH", "C:/Program Files/Google/Chrome/Application/chrome.exe")
 CONTACT_DICT = {
-    # "name": "+91XXXXXXXXXX",
+    "raja": "+916377181470",
+    "anshika": "+919351062165",
+    "mummy": "+918619456246",
+    "papa": "+917014832024",
+    "kinshu": "+919351366529",
+    "chacha": "+919694846502",
+    "arpit": "+916375014040",
+    "baba": "+918741890153"
 }
 GOODBYES = ["You are great!", "Thanks for using me!", "Nice meeting with you!"]
 
 # ── Chrome browser setup ──────────────────────────────
-webbrowser.register("chrome", None, webbrowser.BackgroundBrowser(CHROME_PATH))
 
 # ── Sounds ────────────────────────────────────────────
-mixer.init()
-try:
-    coin_sound = mixer.Sound("assets/media/coin.mp3")
-except Exception:
-    coin_sound = None
 
 
 # ══════════════════════════════════════════════════════
@@ -148,8 +148,12 @@ def cmd_play_playlist(_query):
 
 def cmd_coin_flip(_query):
     outcome = random.choice(["heads", "tails"])
-    if coin_sound:
+    try:
+        mixer.init()
+        coin_sound = mixer.Sound("assets/media/coin.mp3")
         coin_sound.play()
+    except Exception:
+        pass
     Speak(f"The coin landed on {outcome}!")
 
 
@@ -217,20 +221,26 @@ def cmd_ip(_query):
 
 
 def cmd_temperature(_query):
-    url = "https://www.google.com/search?q=temperature+in+jaipur"
-    r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-    data = BeautifulSoup(r.text, "html.parser")
     try:
-        temp = data.find("div", class_="BNeawe").text
-        Speak(f"Current temperature is {temp}")
+        city = "Jaipur"
+        url = f"https://wttr.in/{city}?format=%t"
+        response = requests.get(url, timeout=5)
+        temp = response.text.strip()
+        Speak(f"Current temperature in {city} is {temp}")
     except Exception:
         Speak("Could not fetch temperature right now.")
 
-
 def cmd_calculate(query):
-    query = query.replace("calculate", "").replace("jarvis", "").strip()
-    Calc(query)
-
+    query = (query.replace("calculate", "").replace("jarvis", "")
+                  .replace("what is", "").replace("solve", "")
+                  .replace("plus", "+").replace("minus", "-")
+                  .replace("multiply", "*").replace("divided by", "/")
+                  .replace("times", "*").strip())
+    try:
+        result = eval(query)
+        Speak(f"The answer is {result}")
+    except Exception:
+        Speak("Sorry, I could not calculate that.")
 
 def cmd_internet_speed(_query):
     Speak("Testing internet speed, please wait...")
@@ -300,7 +310,17 @@ def cmd_open_app(query):
 
 
 def cmd_close(query):
-    closeappweb(query)
+    import subprocess
+    app = (query.replace("close", "").replace("jarvis", "").strip())
+    if app:
+        subprocess.run(f"taskkill /f /im {app}.exe", shell=True)
+        Speak(f"Closing {app}.")
+    else:
+        pyautogui.hotkey("alt", "f4")
+        Speak("Closed.")
+
+# def cmd_close(query):
+#     closeappweb(query)
 
 
 def cmd_volume_up(_query):
@@ -346,9 +366,8 @@ def cmd_pin_screen(_query):
 
 
 def cmd_brightness(query):
-    Speak("At which level?")
-    level = TakeCommand().lower()
-    adjust_brightness(level)
+    from features.system.Dictapp import adjust_brightness
+    adjust_brightness(query)
 
 
 def cmd_click_photo(_query):
@@ -544,30 +563,40 @@ def handle_command(query: str) -> bool:
 # ══════════════════════════════════════════════════════
 #  MAIN LOOP
 # ══════════════════════════════════════════════════════
-
 def run():
     print("Jarvis is ready. Say 'wake up' to start.")
+    webbrowser.register("chrome", None, 
+                       webbrowser.BackgroundBrowser(CHROME_PATH))
 
     while True:
-        query = TakeCommand().lower()
-        if query == "none":
+        try:
+            query = TakeCommand().lower()
+            if query == "none":
+                continue
+
+            if "wake up" in query or "start" in query or "break up" in query or "makeup" in query:
+                greetMe()
+
+                while True:
+                    try:
+                        query = TakeCommand().lower()
+                        if query == "none":
+                            continue
+                        if "go to sleep" in query:
+                            Speak("Ok sir, call me anytime.")
+                            break
+                        handle_command(query)
+                    except Exception as e:
+                        print(f"Command error: {e}")
+                        Speak("Something went wrong, try again.")
+                        continue  # crash nahi hoga, sunna jaari rahega
+
+        except KeyboardInterrupt:
+            Speak("Goodbye!")
+            break
+        except Exception as e:
+            print(f"Error: {e}")
             continue
-
-        if "wake up" in query or "start" in query:
-            greetMe()
-
-            # Active session loop
-            while True:
-                query = TakeCommand().lower()
-                if query == "none":
-                    continue
-
-                if "go to sleep" in query:
-                    Speak("Ok sir, call me anytime.")
-                    break
-
-                handle_command(query)
-
 
 if __name__ == "__main__":
     run()
