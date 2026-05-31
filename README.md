@@ -116,7 +116,8 @@ This project is licensed under the [MIT License](LICENSE).
 <!-- <p align="center">
   <img src="https://github.com/Arpitgarg07/Jarvis/blob/main/docs/jarvis-logo.png" alt="Jarvis Logo" width="200"/>
 </p> -->
-
+<img src="https://count.getloli.com/get/@Arpitgarg07-Jarvis?theme=rule34" alt="Visitor Count"/>
+<br/>
 <h1 align="center">Jarvis - Just A Rather Very Intelligent Assistant 🤖</h1>
 
 <p align="center">
