@@ -10,21 +10,22 @@ import pyautogui
 import webbrowser
 from time import sleep
 from dotenv import load_dotenv
-from core.voice import Speak
+from core.voice import Speak, TakeCommand
 
 load_dotenv()
 
 
 # ── Screenshot ───────────────────────────────────────
 def take_screenshot() -> None:
-    save_path = os.getenv("SCREENSHOT_PATH", os.path.expanduser("~/Pictures"))
-    os.makedirs(save_path, exist_ok=True)
-    filename = "screenshot.png"
-    full_path = os.path.join(save_path, filename)
-    screenshot = pyautogui.screenshot()
-    screenshot.save(full_path)
-    Speak("Screenshot saved.")
-    print(f"Screenshot saved: {full_path}")
+    import pyautogui
+    from datetime import datetime
+    path = os.path.expanduser("~/Pictures")
+    os.makedirs(path, exist_ok=True)
+    filename = f"jarvis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+    full = os.path.join(path, filename)
+    pyautogui.screenshot(full)
+    Speak(f"Screenshot saved.")
+    print(f"Saved: {full}")
 
 
 # ── Window Management ─────────────────────────────────
@@ -42,9 +43,14 @@ def go_to_home_screen() -> None:
     Speak("You are on the home screen.")
     pyautogui.hotkey('win', 'd')
 
+# def lock_pc() -> None:
+#     Speak("PC is locked.")
+#     pyautogui.hotkey('win', 'l')
+
 def lock_pc() -> None:
-    Speak("PC is locked.")
-    pyautogui.hotkey('win', 'l')
+    Speak("Locking your PC.")
+    import subprocess
+    subprocess.run("rundll32.exe user32.dll,LockWorkStation")
 
 def open_search() -> None:
     pyautogui.hotkey('win', 's')
@@ -68,20 +74,24 @@ def set_brightness(percentage: int) -> None:
     except Exception as e:
         print(f"Brightness control failed: {e}")
 
-def adjust_brightness(level: str) -> None:
-    levels = {
-        "full": 100, "level 10": 100,
-        "level 9": 90, "level 8": 80, "level 7": 70,
-        "level 6": 60, "medium": 50, "level 5": 50,
-        "level 4": 40, "level 3": 30, "level 2": 20,
-        "level 1": 10, "low": 0, "level 0": 0,
-    }
-    for key, val in levels.items():
-        if key in level:
-            set_brightness(val)
-            print(f"Brightness set to {val}%")
-            return
-    print("Brightness level not recognised.")
+def adjust_brightness(query) -> None:
+    import re
+    numbers = re.findall(r'\d+', query)
+    if numbers:
+        level = int(numbers[0])
+        level = max(0, min(100, level))
+    else:
+        Speak("What brightness level? Say a number between 0 and 100.")
+        resp = TakeCommand()
+        nums = re.findall(r'\d+', resp)
+        level = int(nums[0]) if nums else 50
+
+    try:
+        import wmi
+        wmi.WMI(namespace='wmi').WmiMonitorBrightnessMethods()[0].WmiSetBrightness(level, 0)
+        Speak(f"Brightness set to {level} percent.")
+    except Exception:
+        Speak("Could not change brightness. Make sure you're on a laptop.")
 
 
 # ── Close Tabs ────────────────────────────────────────

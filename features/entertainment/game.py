@@ -1,15 +1,7 @@
-import pyttsx3
 import speech_recognition as sr
 import random
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
-engine.setProperty("rate", 185)
-
-def Speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
+from core.voice import Speak
 
 def takeCommand():
     r = sr.Recognizer()
@@ -78,5 +70,5 @@ def game_play():
                 Speak("Scissors")
                 print(f"Score:- ME :- {Me_score} : COM :- {Com_score}")
         i += 1
-    
+
     print(f"FINAL SCORE :- ME :- {Me_score} : COM :- {Com_score}")

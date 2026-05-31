@@ -11,7 +11,6 @@ import json
 from dotenv import load_dotenv
 from core.voice import Speak, TakeCommand
 
-load_dotenv()
 
 CATEGORIES = ["business", "entertainment", "health", "science", "sports", "technology"]
 

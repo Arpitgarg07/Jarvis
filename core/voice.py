@@ -1,47 +1,24 @@
-"""
-features/search/SearchNow.py
-──────────────────────────────
-Web search: Google, YouTube, Wikipedia.
-Bug fixed: TakeCommand() no longer runs at import time.
-"""
-
-import webbrowser
-import wikipedia
-import pywhatkit
-from core.voice import Speak
+import speech_recognition as sr
+import win32com.client as wincl
 
 
-def searchGoogle(query: str) -> None:
-    Speak("Searching Google...")
+def Speak(audio: str) -> None:
+    print(f"Jarvis: {audio}")
+    speaker = wincl.Dispatch("SAPI.SpVoice")
+    speaker.Speak(audio)
+
+
+def TakeCommand() -> str:
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source, timeout=0, phrase_time_limit=4)
     try:
-        pywhatkit.search(query)
-        result = wikipedia.summary(query, sentences=1)
-        Speak(result)
+        print("Understanding...")
+        query = r.recognize_google(audio, language='en-in')
+        print(f"You said: {query}\n")
+        return query
     except Exception:
-        Speak("No results found.")
-
-
-def searchyoutube(query: str) -> None:
-    query = (query
-             .replace("jarvis", "")
-             .replace("youtube search", "")
-             .replace("search on youtube", "")
-             .strip())
-    url = f"https://www.youtube.com/results?search_query={query}"
-    Speak("Opening YouTube.")
-    webbrowser.open(url)
-
-
-def searchwikipedia(query: str) -> None:
-    query = (query
-             .replace("wikipedia", "")
-             .replace("jarvis", "")
-             .replace("search on wikipedia", "")
-             .strip())
-    Speak("Searching Wikipedia...")
-    try:
-        result = wikipedia.summary(query, sentences=2)
-        print(result)
-        Speak(result)
-    except Exception:
-        Speak("Could not find results on Wikipedia.")
+        print("Say that again please...")
+        return "None"
