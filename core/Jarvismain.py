@@ -17,6 +17,7 @@ import subprocess
 import sys
 import time
 import webbrowser
+import keyboard
 
 import pyautogui
 import requests
@@ -55,6 +56,7 @@ from features.utilities.sendcall import send_call
 from features.utilities.task_manager import (
     add_task, summary_text, mark_completed, set_priority,
 )
+import keyboard
 
 
 # ── Config ────────────────────────────────────────────
@@ -550,53 +552,125 @@ COMMAND_MAP = [
 ]
 
 
+# def handle_command(query: str) -> bool:
+#     """Route query to the right handler. Returns True if handled."""
+#     for keyword, handler in COMMAND_MAP:
+#         if keyword in query:
+#             handler(query)
+#             return True
+#     Speak("I didn't understand that. Could you repeat?")
+#     return False
+
+
+# # ══════════════════════════════════════════════════════
+# #  MAIN LOOP
+# # ══════════════════════════════════════════════════════
+# def run():
+#     print("Jarvis is ready. Say 'wake up' to start.")
+#     webbrowser.register("chrome", None, 
+#                        webbrowser.BackgroundBrowser(CHROME_PATH))
+
+#     while True:
+#         try:
+#             query = TakeCommand().lower()
+#             if query == "none":
+#                 continue
+
+#             if "wake up" in query or "start" in query or "break up" in query or "makeup" in query:
+#                 greetMe()
+
+#                 while True:
+#                     try:
+#                         query = TakeCommand().lower()
+#                         if query == "none":
+#                             continue
+#                         if "go to sleep" in query:
+#                             Speak("Ok sir, call me anytime.")
+#                             break
+#                         handle_command(query)
+#                     except Exception as e:
+#                         print(f"Command error: {e}")
+#                         Speak("Something went wrong, try again.")
+#                         continue  # crash nahi hoga, sunna jaari rahega
+
+#         except KeyboardInterrupt:
+#             Speak("Goodbye!")
+#             break
+#         except Exception as e:
+#             print(f"Error: {e}")
+#             continue
+
+
 def handle_command(query: str) -> bool:
-    """Route query to the right handler. Returns True if handled."""
+    """
+    Pehle AI brain try karta hai.
+    Agar brain handle nahi kar paya toh COMMAND_MAP se.
+    """
+    from jarvis_ai.brain import process_command
+ 
+    # Brain ko pehle try karo
+    handled = process_command(query)
+    if handled:
+        return True
+ 
+    # Brain ne nahi kiya — COMMAND_MAP try karo
     for keyword, handler in COMMAND_MAP:
         if keyword in query:
             handler(query)
             return True
+ 
     Speak("I didn't understand that. Could you repeat?")
     return False
-
-
-# ══════════════════════════════════════════════════════
-#  MAIN LOOP
-# ══════════════════════════════════════════════════════
+ 
+ 
 def run():
+    from jarvis_ai.brain import chat_with_llm
+ 
     print("Jarvis is ready. Say 'wake up' to start.")
-    webbrowser.register("chrome", None, 
-                       webbrowser.BackgroundBrowser(CHROME_PATH))
-
+    webbrowser.register("chrome", None,
+                        webbrowser.BackgroundBrowser(CHROME_PATH))
+ 
     while True:
         try:
+            if keyboard.is_pressed('esc'):
+                print("Skipped.")
+                time.sleep(0.5)
+                continue
             query = TakeCommand().lower()
             if query == "none":
                 continue
-
-            if "wake up" in query or "start" in query or "break up" in query or "makeup" in query:
+ 
+            if "wake up" in query or "start" in query:
                 greetMe()
-
+ 
                 while True:
                     try:
                         query = TakeCommand().lower()
                         if query == "none":
                             continue
+ 
                         if "go to sleep" in query:
                             Speak("Ok sir, call me anytime.")
                             break
+ 
+                        # Handle karo
                         handle_command(query)
+ 
+                    except KeyboardInterrupt:
+                        raise
                     except Exception as e:
                         print(f"Command error: {e}")
                         Speak("Something went wrong, try again.")
-                        continue  # crash nahi hoga, sunna jaari rahega
-
+                        continue
+ 
         except KeyboardInterrupt:
             Speak("Goodbye!")
             break
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Loop error: {e}")
             continue
+ 
+
 
 if __name__ == "__main__":
     run()

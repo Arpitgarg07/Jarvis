@@ -138,9 +138,9 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## 🌟 The Vision: Your Secure Personal AI Assistant
+## 🌟 The Vision: Your Secure Personal Voice Assistant
 
-**Jarvis** transforms your computer into an intelligent companion that not only responds to voice commands but also recognizes your face for secure access. Built with Python and powered by advanced AI libraries, Jarvis combines the convenience of voice interaction with the security of biometric authentication.
+**Jarvis** transforms your computer into an intelligent companion that not only responds to voice commands but also recognizes your face for secure access. Built with Python and powered by proven libraries, Jarvis combines the convenience of voice interaction with the security of biometric authentication.
 
 Unlike commercial assistants, Jarvis runs entirely on your machine, giving you complete control over your data and privacy while providing powerful automation capabilities.
 
@@ -501,6 +501,10 @@ For detailed testing documentation, see [tests/README.md](tests/README.md).
 
 Thanks to these amazing people who make Jarvis better:
 
+**GSSoC Open Source:** This project is part of GirlScript Summer of Code (GSSoC) as an open-source initiative.
+
+**Contributors (Phase 1):** Adez017, campuscoder74, Kushanware, Jai-76, Adithyakp86, arzoo0511
+
 <a href="https://github.com/Arpitgarg07/Jarvis/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Arpitgarg07/Jarvis" />
 </a>
@@ -521,19 +525,25 @@ This project is freely available under the **MIT License**. See the [LICENSE](LI
 
 ---
 
+## 🧱 Builder
+
+Built by **Arpit Garg** ([@Arpitgarg07](https://github.com/Arpitgarg07)).
+
+---
+
 ## 🙏 Acknowledgments
 
 - **Tony Stark/Iron Man:** For the inspiration behind the name and vision
 - **OpenCV Community:** For powerful computer vision tools
 - **Python Community:** For the amazing libraries that power Jarvis
 - **Contributors:** Everyone who helps improve this project
-- **Users:** Thank you for choosing Jarvis as your AI assistant
+- **Users:** Thank you for choosing Jarvis
 
 ---
 
 <div align="center">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
   <p><strong>🤖 "Sometimes you gotta run before you can walk." - Tony Stark</strong></p>
-  <p>Built with ❤️ and Python by Arpit Garg. Secure AI assistance for everyone.</p>
+  <p>Built with ❤️ and Python by Arpit Garg. Secure assistance for everyone.</p>
   <img src="https://komarev.com/ghpvc/?username=Arpitgarg07-Jarvis&label=Project%20Views&color=00BFFF&style=flat" alt="Project views" />
 </div>
