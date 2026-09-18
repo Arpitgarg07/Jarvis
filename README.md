@@ -1,503 +1,170 @@
-<!-- # Jarvis (Just A Rather Very Intelligent System)
+# Jarvis - Personal AI Voice Assistant
 
-Jarvis is a Python-based personal voice assistant with a cool graphical interface. It listens for your voice commands and performs a variety of computer tasks — from searching the web to opening applications, sending emails, reporting weather, taking notes, and more.
+Jarvis is a Python-based voice assistant for Windows that can respond to commands, control your system, automate common tasks, and integrate with AI-powered features.
 
-## 🚀 Features
+This project combines the original voice assistant workflow with a newer AI layer under the `jarvis_ai` package and `ai_assistant.py`, making it suitable for both local automation and experimentation with LLM-based command handling.
 
-- 🎤 **Voice Interaction:** Greets user, tells time/date, responds to voice commands
-- 🌐 **Web & Search:** Google search, Wikipedia summaries, news, IP address lookup
-- 📧 **Communication:** Sends emails with subject & content via voice input
-- 📅 **Productivity:** Opens applications, notes, system stats, Google Calendar events
-- 🔊 **Media:** Plays songs on YouTube, music streaming
-- 🧠 **Knowledge:** Answers questions via WolframAlpha, solves math queries
-- 🖼️ **System Utilities:** Screenshots, hide/unhide files, switch windows
-- 📊 **System Info:** CPU, RAM, and battery status
-- 🖥️ **GUI Support:** Interactive interface for better user experience
+## Features
 
----
+- Voice command assistant with speech recognition and text-to-speech
+- System control such as browser actions, screenshots, volume, and window management
+- Productivity tools including tasks, reminders, alarms, and focus mode
+- Web and information helper functions for search, news, IP lookup, and translation
+- Communication features for email and WhatsApp automation
+- Entertainment features like jokes, games, and media playback
+- AI-capable layer for local memory, note storage, task management, and model-driven tools
+- Optional environment-based configuration for API keys and service credentials
 
-## 🛠️ Installation & Setup
+## Tech Stack
 
-### 1. Clone the Repository
+- Python 3.11
+- `pyttsx3`, `SpeechRecognition`, `pyaudio`-compatible setup
+- `opencv-python-headless`
+- `pyautogui`, `keyboard`, `pynput`, `psutil`
+- `requests`, `beautifulsoup4`, `wikipedia`, `speedtest-cli`
+- `pygame`, `gtts`, `googletrans`
+- `pywhatkit`, `twilio`, `wolframalpha`
+- `python-dotenv`
+- SQLite-backed local memory in the AI layer
+
+## Repository Layout
+
+```text
+.
+├── ai_assistant.py              # Text-based AI interaction entry point
+├── install.py                  # Dependency installer script
+├── main.py                     # Main app launcher
+├── Jarvismain.py               # Core assistant logic
+├── requirements.txt            # Runtime dependencies
+├── requirements-dev.txt        # Dev/test dependencies
+├── .env.example                # Environment variable template
+├── AI_UPGRADE.md               # Notes for the AI upgrade layer
+├── README.md                   # Project documentation
+├── core/                       # Core assistant logic and voice helpers
+├── features/                   # Feature modules for search, system, entertainment, etc.
+├── jarvis_ai/                  # Local AI memory/config/tooling layer
+├── tests/                      # Automated tests
+├── data/                       # Persistent local data files
+├── assets/                     # Media and visual assets
+└── LICENSE
+```
+
+## Prerequisites
+
+- Python 3.11 recommended and required by the launcher in `main.py`
+- Windows 10/11 is the primary target environment
+- Microphone for voice input
+- Webcam for face-recognition features
+- Internet connection for web/API-based features
+
+## Setup
+
+1. Clone the repository:
 
 ```bash
-git clone https://github.com/Arpitgarg07/Jarvis.git
-cd Jarvis
+git clone <your-repo-url>
+cd "Jarvis BY arpit"
 ```
 
-### 2. Create `config.py` File
-
-Inside the `Jarvis/config` directory, create a `config.py` file and add your credentials:
-
-```python
-email = "<your_email>"
-email_password = "<your_email_password>"
-wolframalpha_id = "<your_wolframalpha_id>"
-```
-
-### 3. Setup Python Environment (Python 3.8 Recommended)
+2. Create a virtual environment:
 
 ```bash
-conda create -n jarvis python=3.8
-conda activate jarvis
-# OR
-python3.8 -m venv jarvis
-source jarvis/bin/activate  # On Windows use: jarvis\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
-### 4. Install Requirements
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-> **Note:** You may need to install `PyAudio` manually on Windows. Download from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio).
+Optional automatic package install:
 
-### 5. Get API Keys
+```bash
+python install.py
+```
 
-- [OpenWeatherMap](https://openweathermap.org/api)
-- [WolframAlpha](https://developer.wolframalpha.com/)
-- [Google Calendar API](https://developers.google.com/calendar)
+4. Configure environment variables:
 
-Add these keys to your `config.py`.
+```bash
+copy .env.example .env
+```
 
-### 6. Run the Assistant
+Then update `.env` with your API keys and service credentials, such as:
+
+- `GEMINI_API_KEY`
+- `GROQ_API_KEY`
+- `WOLFRAM_API_KEY`
+- `NEWS_API_KEY`
+- `SENDER_EMAIL`
+- `SENDER_PASSWORD`
+- `TWILIO_SID`
+- `TWILIO_TOKEN`
+
+## Run the Assistant
+
+Launch the main voice assistant:
 
 ```bash
 python main.py
 ```
 
----
+Run the text-based AI assistant:
 
-## 💡 Usage Examples
-
-Once running, try voice commands like:
-
-- “What’s the time?”
-- “Open YouTube”
-- “Search Wikipedia for Python”
-- “Send email to Arpit”
-- “What’s the weather in Jaipur?”
-- “Play song on YouTube”
-- “Take screenshot named jarvis.png”
-- “Hide files in Documents”
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Follow these steps:
-
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature-name`)
-3. Make your changes
-4. Commit your changes (`git commit -m 'Add feature'`)
-5. Push to the branch (`git push origin feature-name`)
-6. Create a Pull Request
-
-Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-## 🙌 Credits
-
-- Developed by [Arpit Garg](https://github.com/Arpitgarg07)
-- GUI and libraries credit to respective authors
-
----
-
-⭐ If you like this project, consider starring the repo and sharing it! -->
-<!-- <p align="center">
-  <img src="https://github.com/Arpitgarg07/Jarvis/blob/main/docs/jarvis-logo.png" alt="Jarvis Logo" width="200"/>
-</p> -->
-
-<h1 align="center">Jarvis - Just A Rather Very Intelligent Assistant 🤖</h1>
-
-<p align="center">
-  <strong>An open-source Python-based personal voice assistant with face recognition security and intelligent automation capabilities.</strong>
-  <br />
-  <br />
-  <a href="#-getting-started-in-under-5-minutes"><strong>🚀 Get Started</strong></a>
-  ·
-  <a href="https://github.com/Arpitgarg07/Jarvis/issues"><strong>🐛 Report a Bug</strong></a>
-  ·
-  <a href="https://github.com/Arpitgarg07/Jarvis/issues"><strong>✨ Request a Feature</strong></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/Arpitgarg07/Jarvis/stargazers"><img src="https://img.shields.io/github/stars/Arpitgarg07/Jarvis?style=for-the-badge&logo=github&color=FFDD00" alt="Stars"></a>
-  <a href="https://github.com/Arpitgarg07/Jarvis/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Arpitgarg07/Jarvis?style=for-the-badge&color=00BFFF" alt="License"></a>
-  <a href="https://github.com/Arpitgarg07/Jarvis/network/members"><img src="https://img.shields.io/github/forks/Arpitgarg07/Jarvis?style=for-the-badge&logo=github&color=90EE90" alt="Forks"></a>
-</p>
-
----
-
-## 🌟 The Vision: Your Secure Personal Voice Assistant
-
-**Jarvis** transforms your computer into an intelligent companion that not only responds to voice commands but also recognizes your face for secure access. Built with Python and powered by proven libraries, Jarvis combines the convenience of voice interaction with the security of biometric authentication.
-
-Unlike commercial assistants, Jarvis runs entirely on your machine, giving you complete control over your data and privacy while providing powerful automation capabilities.
-
-### 🔥 Core Features
-
-*   **🎤 Voice Interaction:** Natural speech recognition with contextual responses and greetings
-*   **👤 Face Recognition Security:** Biometric authentication with automatic screenshots for security
-*   **🌐 Web Intelligence:** Google search, Wikipedia summaries, news updates, and IP lookup
-*   **📧 Email Automation:** Voice-controlled email composition and sending
-*   **🖥️ System Control:** Application launching, file management, screenshots, and system monitoring  
-*   **🎵 Entertainment Hub:** YouTube control, music playback, and media management
-*   **🧠 Advanced Computing:** WolframAlpha integration for complex calculations and queries
-*   **⏰ Smart Scheduling:** Alarms, reminders, task management, and focus mode
-*   **📱 Communication:** WhatsApp messaging and call automation via Twilio
-*   **🎮 Interactive Features:** Built-in games like Rock Paper Scissors
-*   **🌍 Multilingual Support:** Translation capabilities with voice output
-*   **📊 System Monitoring:** Battery status, performance metrics, and notifications
-
----
-
-## 🏗️ System Architecture: Security-First Design
-
-Jarvis implements a multi-layered architecture with security at its core:
-
-```
-┌────────────────────────────────────────────────────────────────────────────┐
-│                    Jarvis System Architecture                             │
-├────────────────────────────────────────────────────────────────────────────┤
-│ 🔒 SECURITY LAYER                                                          │
-│ ┌──────────────────────┐ ┌──────────────────────┐ ┌──────────────────────┐ │
-│ │    Face Training     │ │   Face Detection     │ │ Access Control &     │ │
-│ │      (OpenCV)        │ │       (LBPH)         │ │    Screenshots       │ │
-│ └──────────────────────┘ └──────────────────────┘ └──────────────────────┘ │
-│                                      │                                     │
-│                                      ▼                                     │
-│ 🎤 INTERACTION LAYER                                                     │
-│ ┌──────────────────────┐ ┌──────────────────────┐ ┌──────────────────────┐ │
-│ │      Speech          │ │      Command         │ │      Response        │ │
-│ │    Recognition       │ │     Processing       │ │     Generation       │ │
-│ │    (Google API)      │ │      Engine          │ │      (pyttsx3)       │ │
-│ └──────────────────────┘ └──────────────────────┘ └──────────────────────┘ │
-│                                      │                                     │
-│                                      ▼                                     │
-│ ⚙️ SERVICE LAYER                                                         │
-│ ┌──────────────────────┐ ┌──────────────────────┐ ┌──────────────────────┐ │
-│ │        Web           │ │       Email          │ │       System         │ │
-│ │      Services        │ │        SMTP          │ │       Control        │ │
-│ └──────────────────────┘ └──────────────────────┘ └──────────────────────┘ │
-│ ┌──────────────────────┐ ┌──────────────────────┐ ┌──────────────────────┐ │
-│ │       Alarms &       │ │       Games &        │ │     Translation      │ │
-│ │      Reminders       │ │        Jokes         │ │       Engine         │ │
-│ └──────────────────────┘ └──────────────────────┘ └──────────────────────┘ │
-│ ┌──────────────────────┐                                                    │
-│ │      Wolfram         │                                                    │
-│ │       Alpha          │                                                    │
-│ └──────────────────────┘                                                    │
-└────────────────────────────────────────────────────────────────────────────┘
-
-```
-
----
-
-## 🚀 The Tech Stack: Proven & Powerful
-
-| Component              | Technology                     | Purpose                                                                                    |
-| ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------ |
-| **Speech Recognition** | **Google Speech API**          | High-accuracy voice command processing with natural language understanding                  |
-| **Text-to-Speech**     | **pyttsx3**                    | Offline voice synthesis with customizable speech rates and voices                         |
-| **Face Recognition**   | **OpenCV + LBPH**              | Secure biometric authentication with Local Binary Patterns Histograms                     |
-| **GUI Framework**      | **Tkinter + PIL**              | Native cross-platform interface with animated GIF support                                 |
-| **Web Automation**     | **requests + BeautifulSoup**   | Intelligent web scraping and API interactions                                             |
-| **System Control**     | **pyautogui + psutil**         | Complete system automation and performance monitoring                                      |
-| **Email Service**      | **smtplib**                    | Secure email sending with Gmail integration                                               |
-| **Messaging**          | **pywhatkit + Twilio**         | WhatsApp automation and phone call capabilities                                           |
-| **Knowledge Engine**   | **WolframAlpha API**           | Advanced mathematical and factual query processing                                        |
-| **Translation**        | **googletrans + gTTS**         | Multi-language translation with voice output                                              |
-
----
-
-## 🛠️ Getting Started in Under 5 Minutes
-
-### Prerequisites
-
-1.  **Python 3.8+:** [Download here](https://www.python.org/downloads/)
-2.  **Webcam:** Required for face recognition security
-3.  **Microphone:** For voice commands
-4.  **Internet Connection:** For API services
-
-### Installation & Setup
-
-1.  **Clone the Repository:**
-    ```bash
-    git clone https://github.com/Arpitgarg07/Jarvis.git
-    cd Jarvis
-    ```
-
-2.  **Install Dependencies:**
-    ```bash
-    # Run the automatic installer
-    python installer.py
-    
-    # OR install manually
-    pip install -r requirements.txt
-    ```
-    > **Note:** On Windows, you may need to install PyAudio manually from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio).
-
-3.  **Set Up Face Recognition (Security):**
-    ```bash
-    # Generate face samples (10 photos)
-    python "Sample generator.py"
-    
-    # Train the recognition model
-    python "Model Trainer.py"
-    ```
-
-4.  **Configure API Keys:**
-    Update the following files with your credentials:
-    
-    **For WolframAlpha (Calculatenumbers.py):**
-    ```python
-    apikey = "YOUR_WOLFRAMALPHA_API_KEY"
-    ```
-    
-    **For News (NewsRead.py):**
-    ```python
-    # Replace the API key in the URLs
-    apiKey=YOUR_NEWS_API_KEY
-    ```
-    
-    **For Email (sendemail.py):**
-    ```python
-    sender_email = "your_email@gmail.com"
-    sender_password = "your_app_password"
-    ```
-
-5.  **🎉 Launch Jarvis:**
-    ```bash
-    python Jarvismain.py
-    ```
-
-6.  **Activate Your Assistant:**
-    Say **"Wake up"** to start interacting with Jarvis!
-
----
-
-## 💡 Voice Commands: What Jarvis Can Do
-#### 🎤 Basic Commands
-
-- "Wake up" , "Go to sleep" - Control Jarvis
-- "Hello" ,"What's the time?" - Basic interaction
-- "Google search [topic]" , "Wikipedia [topic]" - Web search
-- "What's the news?" ,"What's my IP address?" - Information
-
-#### 🖥️ System & Productivity
-
-- "Open [app]" , "Take screenshot" - System control
-- "Set an alarm" , "Remind me" - Time management
-- "Focus mode" , "Show my focus" - Productivity tracking
-- "Battery status" , "Internet speed test" - System info
-
-#### 📧 Communication & Entertainment
-
-- "Write an email" , "WhatsApp message" - Communication
-- "Play playlist" , "Tell me a joke" - Entertainment
-- "Calculate [math]" , "Translate [text]" - Smart features
-- "Open game" , "Flip a coin" - Interactive fun
-
----
-
-## 🔧 Advanced Configuration
-
-### Face Recognition Setup
-1. Run `Sample generator.py` to capture 10 face samples
-2. Execute `Model Trainer.py` to create recognition model
-3. Update the `names` list in `Jarvismain.py` with your name
-4. Adjust `id` variable to match your assigned number
-
-### Focus Mode
-- Blocks distracting websites during work sessions
-- Tracks productivity time in `focus.txt`
-- Generates focus graphs with `FocusGraph.py`
-- Requires administrator privileges on Windows
-
-### WhatsApp Integration
-- Update `contact_dict` in `Jarvismain.py` with your contacts
-- Uses `pywhatkit` for automated messaging
-- Supports both manual and automated message scheduling
-
-### Email Configuration
-- Use Gmail App Passwords for security
-- Update recipient mappings in `sendemail.py`
-- Supports voice-to-text email composition
-
----
-
-## 🌟 Unique Features
-
-### 🔒 **Security First**
-- Biometric face recognition with OpenCV
-- Automatic security screenshots for unknown faces
-- Optional password protection
-- Local data processing for privacy
-
-### 🧠 **Smart Automation**
-- Context-aware command processing
-- Natural language understanding
-- Intelligent system control
-- Productivity tracking and analytics
-
-### 🎯 **Focus Mode**
-- Website blocking during work sessions
-- Productivity time tracking
-- Visual analytics with matplotlib
-- Administrative control for system-level blocking
-
-### 🎮 **Interactive Entertainment**
-- Built-in games (Rock Paper Scissors)
-- Joke telling with pyjokes
-- Coin flipping with sound effects
-- Interactive voice responses
-
----
-
-## 🤝 Contributing to Jarvis
-
-We welcome contributions! Here's how you can help:
-
-### 🌟 **Ways to Contribute**
-- **🐛 Bug Fixes:** Improve reliability and fix issues
-- **✨ New Commands:** Add more voice command capabilities  
-- **🔧 Hardware Support:** Expand device compatibility
-- **🌍 Localization:** Add support for more languages
-- **📱 Integrations:** Connect with more services and APIs
-- **🎨 UI Improvements:** Enhance the visual interface
-
-### 📝 **Getting Started**
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Test your changes thoroughly
-4. Commit your changes (`git commit -m 'Add amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
-
----
-
-
-## 🔑 Required API Keys
-
-### Free APIs (Recommended)
-- **WolframAlpha:** [Get API Key](https://developer.wolframalpha.com/) - 2000 queries/month free
-- **News API:** [Get API Key](https://newsapi.org/) - 1000 requests/day free
-- **OpenWeatherMap:** [Get API Key](https://openweathermap.org/api) - 1000 calls/day free
-
-### Optional Paid APIs
-- **Twilio:** For phone call functionality
-- **Google Calendar API:** For advanced calendar integration
-
----
-
-## 📁 Project Structure
-
-```
-Jarvis/
-├── Jarvismain.py              # Main application with face recognition
-├── INTRO.py                   # Animated startup screen
-├── GreetMe.py                 # Greeting functionality
-├── Calculatenumbers.py        # WolframAlpha integration
-├── Dictapp.py                # System control functions
-├── SearchNow.py              # Web search capabilities
-├── NewsRead.py               # News reading functionality
-├── Whatsapp.py               # WhatsApp integration
-├── Translator.py             # Translation services
-├── FocusMode.py              # Productivity website blocking
-├── FocusGraph.py             # Focus time visualization
-├── battery.py                # Battery monitoring
-├── game.py                   # Rock Paper Scissors game
-├── joke.py                   # Joke functionality
-├── alarm.py                  # Alarm system
-├── reminder.py               # Reminder notifications
-├── sendemail.py              # Email functionality
-├── Location.py               # Location services
-├── Sample generator.py       # Face recognition training
-├── Model Trainer.py          # Face recognition model
-├── installer.py              # Dependency installer
-├── keyboard.py               # Volume control
-├── sendcall.py               # Twilio call integration
-└── Various text files        # Data storage and configuration
-```
-
----
-
-## 🛡️ Privacy & Security
-
-**Jarvis prioritizes your privacy:**
-
-- **Local Processing:** Face recognition and most operations run locally
-- **Encrypted Storage:** Sensitive data encrypted on your machine  
-- **API Control:** You choose which external services to use
-- **Open Source:** Complete transparency - inspect every line of code
-- **No Tracking:** Zero telemetry or user data collection
-- **Biometric Security:** Face recognition prevents unauthorized access
-
----
-
-## 🧪 Testing & Quality Assurance
-
-Jarvis includes a comprehensive testing suite to ensure reliability and code quality.
-
-### 🚀 Quick Test Run
 ```bash
-# Run all tests
-python -m pytest tests/ -v
-
-# Run tests with coverage
-python -m pytest tests/ --cov=. --cov-report=html
+python ai_assistant.py
 ```
 
-### 🔧 Comprehensive Testing
+## Example Commands
+
+The assistant supports commands such as:
+
+- "Hello"
+- "What time is it?"
+- "Open Google"
+- "Search for Python"
+- "Tell me a joke"
+- "Set an alarm"
+- "Remind me later"
+- "Take a screenshot"
+- "Translate hello to Hindi"
+- "What is my IP address?"
+- "Show my focus stats"
+
+## AI Layer
+
+The AI layer is still being expanded but includes:
+
+- `.env`-based configuration
+- SQLite memory storage
+- local tool wrappers for task/note/reminder tracking
+- command routing through `jarvis_ai/brain.py`
+- optional model providers such as Ollama or OpenAI-like integrations
+
+See [AI_UPGRADE.md](AI_UPGRADE.md) for more details.
+
+## Testing
+
+Run the test suite with:
+
 ```bash
-# Run all checks (tests, linting, formatting, security)
+pytest
+```
+
+Or use the project helper:
+
+```bash
 python run_tests.py
-
-# Run specific test categories
-python run_tests.py --skip-lint
-python run_tests.py --skip-security
-python run_tests.py --fix  # Auto-fix formatting issues
 ```
 
-### 📋 Test Categories
+## Contributing
 
-- **Unit Tests:** Individual module functionality
-- **Integration Tests:** Module interaction and imports
-- **Code Quality:** Linting with flake8, formatting with Black
-- **Security Checks:** Vulnerability scanning with bandit
-- **Coverage Analysis:** Code coverage reporting
+Contributions are welcome. Please keep changes focused, document new features, and validate with tests when possible.
 
-### 🔄 Continuous Integration
+## License
 
-The project uses GitHub Actions for automated testing:
-- **Main CI Workflow:** Quick syntax and basic checks for all file changes
-- **Python Tests Workflow:** Comprehensive testing specifically for Python file changes
-- **Multi-Python Support:** Tests against Python 3.8, 3.9, 3.10, and 3.11
-
-### 📊 Development Dependencies
-```bash
-# Install development tools
-pip install -r requirements-dev.txt
-
-# Set up pre-commit hooks
-pre-commit install
-```
-
-For detailed testing documentation, see [tests/README.md](tests/README.md).
-
----
-
-## 🌟 Contributors
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 Thanks to these amazing people who make Jarvis better:
 
