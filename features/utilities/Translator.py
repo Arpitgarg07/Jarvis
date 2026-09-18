@@ -4,7 +4,7 @@ from googletrans import Translator
 import googletrans
 from gtts import gTTS
 import os
-from playsound import playsound
+import pygame
 import time
 
 from core.voice import Speak, TakeCommand
@@ -20,8 +20,13 @@ def translategl(query):
     try:
         speakgl = gTTS(text=text, lang=b, slow=False)
         speakgl.save("voice.mp3")
-        playsound("VOICE.mp3")
-        time.sleep(5)
+        pygame.mixer.init()
+        pygame.mixer.music.load("voice.mp3")
+        pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            time.sleep(0.1)
+        pygame.mixer.music.stop()
+        pygame.mixer.quit()
         os.remove("voice.mp3")
     except Exception:
         print("Unable to translate")

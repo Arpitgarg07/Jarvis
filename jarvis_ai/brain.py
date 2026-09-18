@@ -61,42 +61,44 @@ def _rotate():
     _gidx = (_gidx + 1) % len(GROQ_KEYS)
 
 
-# ── System Prompt — Hinglish Support ───────────────────
-SYSTEM_PROMPT = """You are Jarvis, an advanced AI personal assistant.
+# ── System Prompt — English Only ───────────────────────
+SYSTEM_PROMPT = """You are Jarvis, a personal AI assistant created by Arpit Garg.
 
-LANGUAGE: Respond in the SAME language the user speaks.
-- If user speaks Hindi/Hinglish → respond in Hinglish
-- If user speaks English → respond in English
-- Mix naturally: "Opening Chrome kar raha hoon" or "Sure, search kar deta hoon"
+PERSONALITY: Talk like a real person — natural, warm, casual. Not robotic. Use short sentences where possible. React to what the user says, not just answer. If they say "ok ok" or "wait", you already stopped — that's handled separately. Keep responses concise unless the user asks for detail.
+
+IDENTITY: ONLY if the user directly asks "who made you", "who created you", "who built you", "who is your programmer" — say "I was created by Arpit Garg." Never mention this otherwise.
+
+LANGUAGE: Always respond in English only.
+
+MEMORY: You have access to conversation history. Refer back to it naturally when relevant. If the user says "you were saying" or "continue", the app handles replaying — don't repeat yourself unless asked.
 
 Respond ONLY with JSON:
 {
   "type": "action|vision|conversation",
   "intent": "open_app|close_app|web_search|system_control|email|conversation|vision_task",
   "target": "specific target",
-  "response": "what to say (in user's language)",
+  "response": "what to say — natural, human tone",
   "data": {}
 }
 
 ROUTING — strictly follow:
-- App open karna → type=action, intent=open_app
+- Open an app → type=action, intent=open_app
 - Website/search → type=action, intent=web_search, data={url:...}
 - Lock/shutdown/volume → type=action, intent=system_control
-- App close → type=action, intent=close_app
-- Screen pe click/type/interact → type=vision
-- Kuch dekhna screen pe → type=vision
-- WhatsApp pe message → type=vision
+- Close an app → type=action, intent=close_app
+- Click/type/interact on screen → type=vision
+- Describe screen → type=vision
+- Send WhatsApp message → type=vision
 - Scroll/navigate page → type=vision
-- Baat karna/sawaal → type=conversation
+- General conversation/question → type=conversation
 
 Examples:
-"chrome khol" → {"type":"action","intent":"open_app","target":"chrome","response":"Chrome khol raha hoon.","data":{}}
-"wikipedia search karo" → {"type":"action","intent":"web_search","target":"wikipedia","response":"Wikipedia khol raha hoon.","data":{"url":"https://wikipedia.org"}}
-"WhatsApp pe Arpit ko message karo" → {"type":"vision","intent":"vision_task","target":"open arpit chat on whatsapp and type message","response":"WhatsApp pe Arpit ki chat dhundh raha hoon.","data":{}}
-"screen pe kya dikh raha hai" → {"type":"vision","intent":"vision_task","target":"describe screen","response":"Screen dekh raha hoon.","data":{}}
-"search box pe click karo" → {"type":"vision","intent":"vision_task","target":"click on search box","response":"Search box pe click kar raha hoon.","data":{}}
-"scroll karo" → {"type":"vision","intent":"vision_task","target":"scroll down","response":"Scroll kar raha hoon.","data":{}}
-"ek joke sunao" → {"type":"conversation","intent":"conversation","target":"","response":"Kya hua? Ek banda doctor ke paas gaya...","data":{}}
+"open chrome" → {"type":"action","intent":"open_app","target":"chrome","response":"Sure, opening Chrome.","data":{}}
+"search wikipedia" → {"type":"action","intent":"web_search","target":"wikipedia","response":"On it.","data":{"url":"https://wikipedia.org"}}
+"send whatsapp message to Arpit" → {"type":"vision","intent":"vision_task","target":"open arpit chat on whatsapp and type message","response":"Looking for Arpit's chat.","data":{}}
+"what do you see on screen" → {"type":"vision","intent":"vision_task","target":"describe screen","response":"Let me take a look.","data":{}}
+"tell me a joke" → {"type":"conversation","intent":"conversation","target":"","response":"Why don't scientists trust atoms? Because they make up everything!","data":{}}
+"how are you" → {"type":"conversation","intent":"conversation","target":"","response":"Doing great, thanks for asking! What can I do for you?","data":{}}
 
 IMPORTANT: type=vision for ANY screen interaction. NEVER use action for clicking.
 Always respond ONLY valid JSON. No markdown."""
@@ -188,23 +190,114 @@ def system_control(target: str) -> bool:
     return True
 
 
-def handle_email(recipient: str, data: dict):
-    Speak("Email mein kya likhna hai?")
-    about = TakeCommand()
-    result = groq_call(
-        f"Professional email likho {recipient} ko, topic: {about}. "
-        f"JSON return karo: {{\"subject\": \"...\", \"body\": \"...\"}}",
-        add_history=False)
-    subject = result.get("subject", "Important Message")
-    body    = result.get("body", about)
-    import webbrowser, urllib.parse
-    webbrowser.open(
-        f"https://mail.google.com/mail/?view=cm"
-        f"&to={urllib.parse.quote(recipient)}"
-        f"&su={urllib.parse.quote(subject)}"
-        f"&body={urllib.parse.quote(body)}"
-    )
-    Speak(f"Email ready hai. Subject: {subject}. Review karke send kar do.")
+def _take_command_retry(prompt: str, retries: int = 3) -> str:
+    """Speak prompt, wait for mic to settle, then listen. Retries on failure."""
+    for attempt in range(retries):
+        Speak(prompt if attempt == 0 else "Sorry, I didn't catch that. Please say it again.")
+        time.sleep(0.7)
+        result = TakeCommand()
+        if result != "None":
+            return result
+    return "None"
+
+
+def handle_email(recipient: str, data: dict, original_command: str = ""):
+    import re, requests as _req, smtplib
+    from email.message import EmailMessage
+    from features.communication.sendemail import RECIPIENT_MAPPING, send_email
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    def _cancel():
+        Speak("Okay, email cancelled.")
+
+    # ── Step 1: get recipient name ────────────────────────
+    # First try to extract from what user originally said
+    if not recipient or recipient.lower() in ("", "email client", "none"):
+        match = re.search(
+            r"(?:to|for)\s+([A-Za-z ]{2,40}?)(?:\s+about|\s+regarding|$)",
+            original_command, re.IGNORECASE)
+        if match:
+            recipient = match.group(1).strip()
+
+    if not recipient or recipient.lower() in ("", "email client", "none"):
+        recipient = _take_command_retry("Who do you want to send the email to?")
+        if recipient == "None":
+            return _cancel()
+
+    # ── Step 2: resolve email address ────────────────────
+    email_addr = RECIPIENT_MAPPING.get(recipient.lower().strip(), "")
+    if not email_addr and "@" in recipient:
+        email_addr = recipient.strip()
+    if not email_addr:
+        email_addr = _take_command_retry(
+            f"I don't have {recipient}'s email address. Please say their email address.")
+        if email_addr == "None":
+            return _cancel()
+        # Clean up speech-to-text email artifacts:
+        # "arpitgarg5689 at the rate gmail.com" → "arpitgarg5689@gmail.com"
+        email_addr = (email_addr.lower()
+                      .replace(" at the rate ", "@")
+                      .replace(" at ", "@")
+                      .replace(" dot ", ".")
+                      .replace(" ", ""))
+
+    # ── Step 3: get subject ───────────────────────────────
+    subject = _take_command_retry("What is the subject of the email?")
+    if subject == "None":
+        return _cancel()
+
+    # ── Step 4: get body ──────────────────────────────────
+    body_input = _take_command_retry("Now tell me what to write in the email body.")
+    if body_input == "None":
+        return _cancel()
+
+    # ── Step 5: AI-polish the body ────────────────────────
+    Speak("Drafting your email, one moment.")
+    body = body_input
+    try:
+        r = _req.post(GROQ_URL,
+            headers={"Authorization": f"Bearer {_get_key()}",
+                     "Content-Type": "application/json"},
+            json={"model": GROQ_MODEL,
+                  "messages": [{"role": "user", "content":
+                      f"Write a professional email body to {recipient}. "
+                      f"Subject: {subject}. Content: {body_input}. "
+                      f"Return ONLY JSON: {{\"body\": \"...\"}}"}],
+                  "temperature": 0.4, "max_tokens": 400,
+                  "response_format": {"type": "json_object"}},
+            timeout=15)
+        import json as _json
+        body = _json.loads(r.json()["choices"][0]["message"]["content"]).get("body", body_input)
+    except Exception as e:
+        print(f"Email draft error: {e}")
+        body = body_input
+
+    # ── Step 6: show full summary for confirmation ────────
+    print("\n" + "="*50)
+    print("EMAIL SUMMARY")
+    print("="*50)
+    print(f"  To      : {recipient} <{email_addr}>")
+    print(f"  Subject : {subject}")
+    print(f"  Body    :\n{body}")
+    print("="*50 + "\n")
+
+    confirm = _take_command_retry(
+        f"Here is your email. To: {recipient}. Subject: {subject}. "
+        f"Body starts with: {body[:80]}. "
+        f"Should I send it? Say yes to send or no to cancel.")
+
+    if confirm == "None" or not any(w in confirm.lower() for w in ["yes","send","ok","yeah","sure","go ahead","confirm"]):
+        return _cancel()
+
+    # ── Step 7: send via SMTP ─────────────────────────────
+    Speak("Sending your email now.")
+    try:
+        send_email(email_addr, subject, body)
+        Speak(f"Done! Email sent to {recipient} successfully.")
+    except Exception as e:
+        print(f"Send error: {e}")
+        Speak("Sorry, I could not send the email. Please check your credentials.")
 
 
 # ── Main Entry ──────────────────────────────────────────
@@ -226,7 +319,7 @@ def process_command(command: str) -> bool:
         elif intent == "close_app":      close_app(target)
         elif intent == "web_search":     web_search(target, data.get("url",""))
         elif intent == "system_control": system_control(target)
-        elif intent == "email":          handle_email(target, data)
+        elif intent == "email":          handle_email(target, data, command)
         elif intent == "type_text":      pyautogui.write(data.get("text", target), interval=0.04)
 
     elif cmd_type == "vision":

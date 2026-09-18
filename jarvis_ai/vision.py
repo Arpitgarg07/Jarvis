@@ -16,21 +16,11 @@ import pyautogui
 from dotenv import load_dotenv
 load_dotenv()
 
-# ── Groq Setup ────────────────────────────────────────
-GROQ_KEYS = [v for k, v in sorted(os.environ.items())
-             if k.startswith("GROQ_API_KEY") and v]
-_kid = 0
-GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
-VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+# ── Gemini Vision Setup ───────────────────────────────
+GEMINI_KEY   = os.getenv("GEMINI_API_KEY", "")
+VISION_MODEL = "gemini-2.5-flash"
+GEMINI_URL   = f"https://generativelanguage.googleapis.com/v1beta/models/{VISION_MODEL}:generateContent"
 THUMB_W, THUMB_H = 1280, 720
-
-def _key():
-    return GROQ_KEYS[_kid] if GROQ_KEYS else ""
-
-def _rotate():
-    global _kid
-    _kid = (_kid + 1) % len(GROQ_KEYS)
-    print(f"Vision key → #{_kid+1}")
 
 
 # ══════════════════════════════════════════════════════
@@ -125,35 +115,47 @@ def _screenshot_b64():
 
 
 def _vision_call(prompt: str, b64: str) -> dict:
-    """Single Groq vision call with key rotation."""
-    for _ in range(len(GROQ_KEYS)):
-        try:
-            r = requests.post(GROQ_URL,
-                headers={"Authorization": f"Bearer {_key()}",
-                         "Content-Type": "application/json"},
-                json={"model": VISION_MODEL,
-                      "messages": [{"role": "user", "content": [
-                          {"type": "text", "text": prompt},
-                          {"type": "image_url", "image_url": {
-                              "url": f"data:image/jpeg;base64,{b64}"}}
-                      ]}],
-                      "temperature": 0.0, "max_tokens": 150,
-                      "response_format": {"type": "json_object"}},
+    """Single Gemini vision call."""
+    if not GEMINI_KEY:
+        print("Vision: GEMINI_API_KEY not set")
+        return {"found": False}
+    try:
+        r = requests.post(
+            f"{GEMINI_URL}?key={GEMINI_KEY}",
+            headers={"Content-Type": "application/json"},
+            json={"contents": [{"parts": [
+                {"text": prompt},
+                {"inline_data": {"mime_type": "image/jpeg", "data": b64}}
+            ]}],
+            "generationConfig": {"temperature": 0.0, "maxOutputTokens": 256,
+                                 "responseMimeType": "application/json"}},
+            timeout=20)
+
+        if r.status_code == 429:
+            print("Vision: Gemini rate limited, retrying in 2s...")
+            time.sleep(2)
+            r = requests.post(
+                f"{GEMINI_URL}?key={GEMINI_KEY}",
+                headers={"Content-Type": "application/json"},
+                json={"contents": [{"parts": [
+                    {"text": prompt},
+                    {"inline_data": {"mime_type": "image/jpeg", "data": b64}}
+                ]}],
+                "generationConfig": {"temperature": 0.0, "maxOutputTokens": 256,
+                                     "responseMimeType": "application/json"}},
                 timeout=20)
 
-            if r.status_code == 429:
-                _rotate(); time.sleep(1); continue
-            if r.status_code != 200:
-                print(f"Vision {r.status_code}: {r.text[:100]}")
-                _rotate(); continue
+        if r.status_code != 200:
+            print(f"Vision {r.status_code}: {r.text[:100]}")
+            return {"found": False}
 
-            text = r.json()["choices"][0]["message"]["content"]
-            s, e = text.find("{"), text.rfind("}") + 1
-            if s != -1:
-                return json.loads(text[s:e])
+        text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+        s, e = text.find("{"), text.rfind("}") + 1
+        if s != -1:
+            return json.loads(text[s:e])
 
-        except Exception as ex:
-            print(f"Vision err: {ex}"); _rotate()
+    except Exception as ex:
+        print(f"Vision err: {ex}")
 
     return {"found": False}
 

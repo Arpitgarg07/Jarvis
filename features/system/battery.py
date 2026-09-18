@@ -1,26 +1,35 @@
-from win10toast import ToastNotifier
 import time
 import psutil
+from plyer import notification
 
 from core.voice import Speak, TakeCommand
 
 def battery():
     battery = psutil.sensors_battery()
     percentage = battery.percent
-    Speak(f"sir our system have {percentage} percent battery")
-    if percentage >= 75:
-        Speak("we have enough power to continue work.")
-    elif percentage >= 40 and percentage <= 75:
-        Speak("Battery is not more!,you should connect to Power source")
-    elif percentage >= 15 and percentage <= 30:
-        Speak("Battery running low, you should connect to power source")
+    plugged = battery.power_plugged
+
+    status = "charging" if plugged else "not charging"
+    Speak(f"Battery is at {percentage} percent and is currently {status}.")
+
+    if plugged and percentage >= 99:
+        Speak("Battery is fully charged. You can unplug the charger.")
+    elif percentage >= 75:
+        Speak("Battery level is good. No need to worry.")
+    elif percentage >= 40:
+        Speak("Battery is at medium level. Consider plugging in soon.")
     elif percentage >= 15:
-        Speak("Batterysaver is running on, you must connect to power source")
+        Speak("Battery is running low. Please connect to a power source.")
+    else:
+        Speak("Critical battery level! Connect to power immediately.")
 
 def check_battery():
-    toaster = ToastNotifier()
     while True:
-        battery = psutil.sensors_battery()
-        if battery.percent == 100 and not battery.power_plugged:
-            toaster.show_toast("Battery Alert", "Battery is fully charged!", duration=10)
+        batt = psutil.sensors_battery()
+        if batt.percent == 100 and not batt.power_plugged:
+            notification.notify(
+                title="Battery Alert",
+                message="Battery is fully charged!",
+                timeout=10,
+            )
         time.sleep(300)  # Check the battery level every 60 seconds

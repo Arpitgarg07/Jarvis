@@ -27,7 +27,7 @@ from dotenv import load_dotenv
 from plyer import notification
 from pygame import mixer
 
-from core.voice import TakeCommand, Speak
+from core.voice import TakeCommand, Speak, was_interrupted, last_spoken
 from core.GreetMe import greetMe
 
 # ── Feature imports ───────────────────────────────────
@@ -648,14 +648,28 @@ def run():
                         query = TakeCommand().lower()
                         if query == "none":
                             continue
- 
+
                         if "go to sleep" in query:
                             Speak("Ok sir, call me anytime.")
                             break
- 
-                        # Handle karo
+
+                        # Resume last speech if user asks to continue
+                        _RESUME_PHRASES = [
+                            "continue", "go on", "keep going", "resume",
+                            "carry on", "continue speaking", "go ahead",
+                            "you were saying", "finish", "complete it",
+                            "continue from where", "what were you saying"
+                        ]
+                        if any(p in query for p in _RESUME_PHRASES):
+                            prev = last_spoken()
+                            if prev:
+                                Speak(prev)
+                            else:
+                                Speak("I don't have anything to continue from.")
+                            continue
+
                         handle_command(query)
- 
+
                     except KeyboardInterrupt:
                         raise
                     except Exception as e:
